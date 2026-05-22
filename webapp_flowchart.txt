@@ -1,0 +1,55 @@
+flowchart TD
+    subgraph PRE["　活動前準備　"]
+        GF["Google Forms 報名"] --> WS["工作人員分組 + 驗證碼<br/>Sheets 直接編輯"]
+        WS --> IM["匯入 Sheets 資料庫"]
+        IM --> NT["Gmail 批次通知<br/>含驗證碼 + 前台網址"]
+    end
+
+    subgraph FP["前台　GitHub Pages　參與者"]
+        LG["登入<br/>姓名 + 驗證碼"] --> HM["主頁面"]
+        HM --> IN["個人資訊<br/>+ 報到 QR Code"]
+        HM --> SF["安全提醒 / 路線"]
+        HM --> MS["使命任務"]
+        MS --> M1["① 問卷<br/>Forms 外開 + 勾選確認"]
+        MS --> M2["② 照片選取<br/>1張，存瀏覽器記憶體"]
+        M2 --> M3["③ 手寫簽名<br/>signature_pad.js"]
+        M3 --> M4["④ jsPDF 合成<br/>純前端，0 API"]
+        M4 --> M5["⑤ 下載 PDF 至手機<br/>瀏覽器 Blob API，0 API"]
+        M5 --> M6["⑥ 單一批次 API<br/>照片 + PDF base64"]
+        M6 --> SQ["簽退 QR Code<br/>任務完成後解鎖"]
+    end
+
+    subgraph FS["後台　GitHub Pages　工作人員"]
+        SL["密碼登入"] --> DB["儀表板<br/>各關卡即時進度"]
+        DB --> SI["報到掃碼<br/>顯示組別資訊"]
+        DB --> SO["簽退掃碼<br/>確認完成 + 兌換禮品"]
+        DB --> MV["核銷管理<br/>手動標記防呆"]
+        
+    end
+
+    subgraph AS["Apps Script Web App　API Layer"]
+        AV["驗證<br/>token + 驗證碼比對"]
+        AB["批次上傳<br/>建資料夾 → 照片→Drive<br/>PDF→Drive → 更新Sheets"]
+        AL["LockService<br/>並發排隊保護<br/>waitLock 10000ms"]
+        AC["掃碼核銷處理<br/>報到 / 簽退 / 手動"]
+        
+    end
+
+    subgraph SVC["Google Services　資料層"]
+        SH[("Sheets<br/>主資料庫<br/>200人資料")]
+        DR[("Drive<br/>個人資料夾<br/>照片 + PDF")]
+        
+    end
+
+    LG -->|"驗證碼比對 1 API"| AV
+    M6 -->|"1 次批次 API"| AB
+    SI -->|"寫入"| AC
+    SO -->|"寫入"| AC
+    MV -->|"寫入"| AC
+    AV --> AL
+    AB --> AL
+    AC --> AL
+    AL --> SH
+    AB --> DR
+    IM --> SH
+    

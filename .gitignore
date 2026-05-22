@@ -1,0 +1,10 @@
+# Claude Code 本機設定（不進 repo）
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 編輯器
+.vscode/
+*.swp
