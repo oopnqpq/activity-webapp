@@ -1,6 +1,10 @@
 # Claude Code 本機設定（不進 repo）
 .claude/
 
+# 本機工具腳本（非專案程式碼）
+apps-script/SheetSetup.gs
+apps-script/ConfirmationChecklist.gs
+
 # OS
 .DS_Store
 Thumbs.db
