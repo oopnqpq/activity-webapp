@@ -104,6 +104,23 @@
 
 見 `development_stages_plan.html`（四階段，共 20–25 天）。
 
+## 路徑規則（GitHub Pages 帳號轉移關鍵）
+
+所有 HTML 檔案內的連結與資源引用，**一律用 `/` 開頭的絕對路徑**，禁止出現任何網域名稱：
+
+```html
+<!-- ✅ 正確 -->
+<script src="/js/auth.js"></script>
+<link rel="stylesheet" href="/css/style.css">
+<a href="/home.html">回主頁</a>
+<img src="/assets/route-map.jpg">
+
+<!-- ❌ 禁止 -->
+<script src="https://oopnqpq.github.io/activity-webapp/js/auth.js"></script>
+```
+
+環境相關的值（API URL、token、Form URL）只能出現在 `js/config.js`，其他檔案一律讀 `CONFIG.*`。
+
 ## 環境設定集中化（開發 → 客戶帳號移交）
 
 前端所有環境相關的值集中在 `js/config.js`，不在其他檔案硬寫：
