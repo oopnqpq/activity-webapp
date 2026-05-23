@@ -104,6 +104,8 @@
 
 見 `development_stages_plan.html`（四階段，共 20–25 天）。
 
+每完成一個 Stage、準備部署測試前，必須先讀取並逐項確認 `HANDOVER_CHECKLIST.md`（本機文件，不在 repo 內）。
+
 ## 路徑規則（GitHub Pages 帳號轉移關鍵）
 
 所有 HTML 檔案內的連結與資源引用，**一律用 `/` 開頭的絕對路徑**，禁止出現任何網域名稱：
