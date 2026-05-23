@@ -5,6 +5,9 @@
 apps-script/SheetSetup.gs
 apps-script/ConfirmationChecklist.gs
 
+# 本機規劃文件
+HANDOVER_CHECKLIST.md
+
 # OS
 .DS_Store
 Thumbs.db
