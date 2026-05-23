@@ -12,7 +12,7 @@ const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbzgTCDwI9yo6RgK41fhq8UoyWR7nxGQsgzFWm6U80tRFc__bUMC-u6sVCLgusuwFYln/exec',
 
   // 與 Apps Script Script Properties 的 STAFF_TOKEN 一致
-  STAFF_TOKEN: 'YOUR_STAFF_TOKEN',
+  STAFF_TOKEN: 'act2026token',
 
   // 使命① 問卷連結（Google Forms，活動方提供）
   FORM_URL_M1: 'https://forms.gle/XXXXXXXX',
