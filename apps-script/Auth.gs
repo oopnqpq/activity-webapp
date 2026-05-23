@@ -40,4 +40,15 @@ var Auth = {
     return _respond({ success: false, error: '姓名或驗證碼錯誤' });
   },
 
+  adminAuth: function(params) {
+    var adminPwd = _getProp('ADMIN_PASSWORD');
+    if (!adminPwd) {
+      return _respond({ success: false, error: '後台密碼未設定' });
+    }
+    if (params.password !== adminPwd) {
+      return _respond({ success: false, error: '密碼錯誤' });
+    }
+    return _respond({ success: true });
+  },
+
 };

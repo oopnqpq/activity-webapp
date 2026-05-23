@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>後台登入</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1 class="text-center">工作人員後台</h1>
+      <p class="subtitle text-center">請輸入後台密碼</p>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="password">後台密碼</label>
+          <input
+            type="text"
+            id="password"
+            name="password"
+            placeholder="請輸入密碼"
+            autocomplete="off"
+            required
+          >
+        </div>
+
+        <div id="errorAlert" class="alert alert-error" role="alert"></div>
+
+        <button type="submit" id="submitBtn" class="btn btn-primary mt-16">
+          <span class="btn-text">登入</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    if (getAdminSession()) {
+      window.location.replace('dashboard.html');
+    }
+
+    const form        = document.getElementById('loginForm');
+    const pwdInput    = document.getElementById('password');
+    const errorAlert  = document.getElementById('errorAlert');
+    const submitBtn   = document.getElementById('submitBtn');
+
+    function showError(msg) { errorAlert.textContent = msg; errorAlert.classList.add('show'); }
+    function clearError()   { errorAlert.classList.remove('show'); }
+    function setLoading(on) { submitBtn.classList.toggle('loading', on); submitBtn.disabled = on; }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      const password = pwdInput.value.trim();
+      if (!password) { showError('請輸入密碼'); pwdInput.focus(); return; }
+
+      setLoading(true);
+      const res = await callAPI('admin_auth', { password });
+      setLoading(false);
+
+      if (res.success) {
+        setAdminSession();
+        window.location.replace('dashboard.html');
+      } else {
+        showError(res.error || '密碼錯誤');
+      }
+    });
+  </script>
+</body>
+</html>

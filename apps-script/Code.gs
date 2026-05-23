@@ -30,10 +30,13 @@ function doPost(e) {
     }
 
     switch (params.action) {
-      case 'auth':  return Auth.verify(params);
-      case 'batch': return Batch.upload(params);
-      case 'scan':  return Scan.process(params);
-      default:      return _respond({ success: false, error: 'Unknown action' });
+      case 'auth':       return Auth.verify(params);
+      case 'admin_auth': return Auth.adminAuth(params);
+      case 'scan':       return Scan.process(params);
+      case 'stats':      return Scan.stats();
+      case 'lookup':     return Scan.lookup(params);
+      case 'batch':      return Batch.upload(params);
+      default:           return _respond({ success: false, error: 'Unknown action' });
     }
   } catch (err) {
     return _respond({ success: false, error: err.message });

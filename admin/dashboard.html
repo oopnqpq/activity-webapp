@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>後台儀表板</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-num  { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+    .stat-label { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+    .progress-bar {
+      height: 6px; background: var(--border); border-radius: 3px;
+      margin-top: 8px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 3px;
+      background: var(--primary); transition: width .4s;
+    }
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .nav-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 16px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px;
+      border: 2px solid transparent;
+      transition: border-color .15s;
+    }
+    .nav-card:hover { border-color: var(--primary); }
+    .nav-card .icon { font-size: 2rem; }
+    .nav-card span  { font-size: .9rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <h1>後台儀表板</h1>
+    <button onclick="logout()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:.9rem;cursor:pointer;">登出</button>
+  </nav>
+
+  <div class="content">
+    <div id="statsSection">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="numTotal">—</div>
+          <div class="stat-label">總人數</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:var(--primary)" id="numCheckin">—</div>
+          <div class="stat-label">已報到</div>
+          <div class="progress-bar"><div class="progress-fill" id="barCheckin" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:var(--warning)" id="numMission">—</div>
+          <div class="stat-label">任務完成</div>
+          <div class="progress-bar"><div class="progress-fill" id="barMission" style="width:0%;background:var(--warning)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:var(--success)" id="numCheckout">—</div>
+          <div class="stat-label">已簽退</div>
+          <div class="progress-bar"><div class="progress-fill" id="barCheckout" style="width:0%;background:var(--success)"></div></div>
+        </div>
+      </div>
+      <p class="text-muted text-center mb-16" style="font-size:.8rem">
+        <span id="lastUpdate">載入中...</span>
+        <button onclick="loadStats()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:.8rem;margin-left:8px;">重新整理</button>
+      </p>
+    </div>
+
+    <div class="nav-grid">
+      <a href="checkin.html" class="nav-card">
+        <span class="icon">📷</span>
+        <span>報到掃碼</span>
+      </a>
+      <a href="checkout.html" class="nav-card">
+        <span class="icon">✅</span>
+        <span>簽退掃碼</span>
+      </a>
+      <a href="manage.html" class="nav-card" style="grid-column:1/-1">
+        <span class="icon">✏️</span>
+        <span>手動核銷</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    requireAdminAuth();
+
+    async function loadStats() {
+      const res = await callAPI('stats', {});
+      if (!res.success) return;
+      const { total, checkin, mission, checkout } = res;
+      document.getElementById('numTotal').textContent    = total;
+      document.getElementById('numCheckin').textContent  = checkin;
+      document.getElementById('numMission').textContent  = mission;
+      document.getElementById('numCheckout').textContent = checkout;
+      if (total > 0) {
+        document.getElementById('barCheckin').style.width  = (checkin  / total * 100) + '%';
+        document.getElementById('barMission').style.width  = (mission  / total * 100) + '%';
+        document.getElementById('barCheckout').style.width = (checkout / total * 100) + '%';
+      }
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent =
+        '更新於 ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+    }
+
+    function logout() {
+      clearAdminSession();
+      window.location.replace('index.html');
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>

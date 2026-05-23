@@ -48,3 +48,39 @@ function requireAuth() {
   }
   return session;
 }
+
+// ── Admin session（後台工作人員）────────────────────────────────
+const ADMIN_SESSION_KEY   = 'admin_session';
+const ADMIN_SESSION_HOURS = 8;
+
+function getAdminSession() {
+  try {
+    const raw = localStorage.getItem(ADMIN_SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (Date.now() > s.expiry) { clearAdminSession(); return null; }
+    return s;
+  } catch {
+    clearAdminSession();
+    return null;
+  }
+}
+
+function setAdminSession() {
+  const s = { expiry: Date.now() + ADMIN_SESSION_HOURS * 3600 * 1000 };
+  localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(s));
+  return s;
+}
+
+function clearAdminSession() {
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+}
+
+function requireAdminAuth() {
+  const s = getAdminSession();
+  if (!s) {
+    window.location.href = 'index.html';
+    return null;
+  }
+  return s;
+}
