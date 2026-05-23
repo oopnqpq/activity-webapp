@@ -45,134 +45,157 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="dashboard.html" class="back">←</a>
-    <h1>報到掃碼</h1>
-  </nav>
 
-  <div class="content">
-    <div id="scanView">
-      <div class="scanner-wrap">
-        <video id="video" autoplay playsinline muted></video>
-        <div class="scan-guide"><div class="scan-box"></div></div>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">後台管理</div>
+    <a href="dashboard.html"><span class="s-icon">📊</span> 儀表板</a>
+    <a href="checkin.html" class="active"><span class="s-icon">📷</span> 報到掃碼</a>
+    <a href="checkout.html"><span class="s-icon">✅</span> 簽退核銷</a>
+    <a href="manage.html"><span class="s-icon">✏️</span> 核銷管理</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-logout"><button onclick="logout()">登出</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <nav class="navbar">
+      <a href="dashboard.html" class="back">←</a>
+      <h1>報到掃碼</h1>
+    </nav>
+
+    <div class="content" style="padding-top:16px">
+      <div id="scanView">
+        <div class="scanner-wrap">
+          <video id="video" autoplay playsinline muted></video>
+          <div class="scan-guide"><div class="scan-box"></div></div>
+        </div>
+        <canvas id="canvas"></canvas>
+        <p class="text-muted text-center mt-16" style="font-size:.9rem">將 QR Code 對準框內</p>
+        <div id="scanAlert" class="alert alert-error mt-16"></div>
       </div>
-      <canvas id="canvas"></canvas>
-      <p class="text-muted text-center mt-16" style="font-size:.9rem">將 QR Code 對準框內</p>
-      <div id="scanAlert" class="alert alert-error mt-16"></div>
-    </div>
 
-    <div id="resultView" style="display:none">
-      <div id="resultCard" class="result-card">
-        <div class="result-icon" id="resultIcon"></div>
-        <div class="result-msg"  id="resultMsg"></div>
-        <div class="result-sub"  id="resultSub"></div>
+      <div id="resultView" style="display:none">
+        <div id="resultCard" class="result-card">
+          <div class="result-icon" id="resultIcon"></div>
+          <div class="result-msg"  id="resultMsg"></div>
+          <div class="result-sub"  id="resultSub"></div>
+        </div>
+        <button class="btn btn-primary mt-16" onclick="resumeScan()">繼續掃描</button>
       </div>
-      <button class="btn btn-primary mt-16" onclick="resumeScan()">繼續掃描</button>
     </div>
-  </div>
+  </main>
+</div>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/api.js"></script>
-  <script src="../lib/jsQR.min.js"></script>
-  <script>
-    requireAdminAuth();
+<nav class="bottom-nav">
+  <a href="dashboard.html"><span class="bn-icon">📊</span>儀表板</a>
+  <a href="checkin.html" class="active"><span class="bn-icon">📷</span>報到</a>
+  <a href="checkout.html"><span class="bn-icon">✅</span>簽退</a>
+  <a href="manage.html"><span class="bn-icon">✏️</span>核銷</a>
+</nav>
 
-    const video      = document.getElementById('video');
-    const canvas     = document.getElementById('canvas');
-    const ctx        = canvas.getContext('2d');
-    const scanView   = document.getElementById('scanView');
-    const resultView = document.getElementById('resultView');
-    const scanAlert  = document.getElementById('scanAlert');
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+<script src="../lib/jsQR.min.js"></script>
+<script>
+  requireAdminAuth();
 
-    let scanning = false;
-    let animFrame = null;
-    let stream    = null;
+  const video      = document.getElementById('video');
+  const canvas     = document.getElementById('canvas');
+  const ctx        = canvas.getContext('2d');
+  const scanView   = document.getElementById('scanView');
+  const resultView = document.getElementById('resultView');
+  const scanAlert  = document.getElementById('scanAlert');
 
-    async function startCamera() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } }
-        });
-        video.srcObject = stream;
-        await new Promise(r => video.onloadedmetadata = r);
-        canvas.width  = video.videoWidth;
-        canvas.height = video.videoHeight;
-        scanning = true;
-        scanFrame();
-      } catch (err) {
-        scanAlert.textContent = '無法開啟相機：' + err.message;
-        scanAlert.classList.add('show');
-      }
-    }
+  let scanning = false;
+  let animFrame = null;
+  let stream    = null;
 
-    function scanFrame() {
-      if (!scanning) return;
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert',
-        });
-        if (code) {
-          scanning = false;
-          cancelAnimationFrame(animFrame);
-          handleQR(code.data);
-          return;
-        }
-      }
-      animFrame = requestAnimationFrame(scanFrame);
-    }
-
-    async function handleQR(raw) {
-      let parsed;
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        showResult('error', '❌', 'QR Code 格式錯誤', raw);
-        return;
-      }
-
-      const { name, code } = parsed;
-      if (!name || !code) {
-        showResult('error', '❌', 'QR Code 資料不完整', '');
-        return;
-      }
-
-      const res = await callAPI('scan', { type: 'checkin', name, code });
-
-      if (res.success) {
-        showResult('success', '✅', res.message, res.name + '（' + res.group + '）');
-      } else if (res.error === '已重複報到') {
-        showResult('warn', '⚠️', '已重複報到', (res.name || '') + '（' + (res.group || '') + '）');
-      } else {
-        showResult('error', '❌', res.error || '發生錯誤', (res.name ? res.name + '（' + res.group + '）' : ''));
-      }
-    }
-
-    function showResult(type, icon, msg, sub) {
-      scanView.style.display   = 'none';
-      resultView.style.display = 'block';
-      const card = document.getElementById('resultCard');
-      card.className = 'result-card ' + type;
-      document.getElementById('resultIcon').textContent = icon;
-      document.getElementById('resultMsg').textContent  = msg;
-      document.getElementById('resultSub').textContent  = sub;
-
-      // 成功時 2.5 秒後自動繼續
-      if (type === 'success') {
-        setTimeout(resumeScan, 2500);
-      }
-    }
-
-    function resumeScan() {
-      resultView.style.display = 'none';
-      scanView.style.display   = 'block';
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } }
+      });
+      video.srcObject = stream;
+      await new Promise(r => video.onloadedmetadata = r);
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
       scanning = true;
       scanFrame();
+    } catch (err) {
+      scanAlert.textContent = '無法開啟相機：' + err.message;
+      scanAlert.classList.add('show');
+    }
+  }
+
+  function scanFrame() {
+    if (!scanning) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert',
+      });
+      if (code) {
+        scanning = false;
+        cancelAnimationFrame(animFrame);
+        handleQR(code.data);
+        return;
+      }
+    }
+    animFrame = requestAnimationFrame(scanFrame);
+  }
+
+  async function handleQR(raw) {
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      showResult('error', '❌', 'QR Code 格式錯誤', raw);
+      return;
     }
 
-    startCamera();
-  </script>
+    const { name, code } = parsed;
+    if (!name || !code) {
+      showResult('error', '❌', 'QR Code 資料不完整', '');
+      return;
+    }
+
+    const res = await callAPI('scan', { type: 'checkin', name, code });
+
+    if (res.success) {
+      showResult('success', '✅', res.message, res.name + '（' + res.group + '）');
+    } else if (res.error === '已重複報到') {
+      showResult('warn', '⚠️', '已重複報到', (res.name || '') + '（' + (res.group || '') + '）');
+    } else {
+      showResult('error', '❌', res.error || '發生錯誤', (res.name ? res.name + '（' + res.group + '）' : ''));
+    }
+  }
+
+  function showResult(type, icon, msg, sub) {
+    scanView.style.display   = 'none';
+    resultView.style.display = 'block';
+    const card = document.getElementById('resultCard');
+    card.className = 'result-card ' + type;
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultMsg').textContent  = msg;
+    document.getElementById('resultSub').textContent  = sub;
+
+    if (type === 'success') {
+      setTimeout(resumeScan, 2500);
+    }
+  }
+
+  function resumeScan() {
+    resultView.style.display = 'none';
+    scanView.style.display   = 'block';
+    scanning = true;
+    scanFrame();
+  }
+
+  function logout() { clearAdminSession(); window.location.replace('/admin/index.html'); }
+
+  startCamera();
+</script>
 </body>
 </html>

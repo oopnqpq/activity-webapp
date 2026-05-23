@@ -80,7 +80,7 @@ function clearAdminSession() {
 function requireAdminAuth() {
   const s = getAdminSession();
   if (!s) {
-    window.location.href = 'index.html';
+    window.location.href = '/admin/index.html';
     return null;
   }
   return s;
