@@ -3,34 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>首頁</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>活動主頁</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <nav class="navbar">
-    <h1 id="pageTitle">活動首頁</h1>
+    <h1>活動主頁</h1>
+    <button onclick="logout()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:.85rem;cursor:pointer;">登出</button>
   </nav>
 
-  <div class="content">
-    <div class="card text-center" style="margin-top:24px;">
-      <p id="welcomeMsg" style="font-size:1.1rem;font-weight:600;margin-bottom:8px;">歡迎！</p>
-      <p class="text-muted">Stage 1 登入驗證完成。</p>
-      <p class="text-muted mt-8">home.html 主功能將於 Stage 3 實作。</p>
-      <button class="btn btn-outline mt-24" onclick="logout()">登出</button>
+  <div class="content" style="padding-top:24px">
+    <p id="greeting" class="text-muted mb-16" style="font-size:.9rem"></p>
+
+    <div class="hub-list">
+      <a href="/info.html" class="hub-card">
+        <div class="hub-icon">👤</div>
+        <div class="hub-body">
+          <h3>個人資訊</h3>
+          <p>查看報到 QR Code 與組別</p>
+        </div>
+        <span class="hub-arrow">›</span>
+      </a>
+
+      <a href="/safety.html" class="hub-card">
+        <div class="hub-icon">🗺</div>
+        <div class="hub-body">
+          <h3>安全提醒 / 路線</h3>
+          <p>活動注意事項與路線地圖</p>
+        </div>
+        <span class="hub-arrow">›</span>
+      </a>
+
+      <a href="/mission.html" class="hub-card" id="missionCard">
+        <div class="hub-icon">🎯</div>
+        <div class="hub-body">
+          <h3>使命關卡任務</h3>
+          <p id="missionStatus">點擊開始任務</p>
+        </div>
+        <span class="hub-arrow">›</span>
+      </a>
     </div>
   </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
   <script>
     const session = requireAuth();
     if (session) {
-      document.getElementById('welcomeMsg').textContent = `歡迎，${session.name}（${session.group}）`;
+      document.getElementById('greeting').textContent =
+        '歡迎，' + session.name + '（' + session.group + '）';
+    }
+
+    // 顯示任務完成狀態（mission.html 寫入 localStorage）
+    const missionDone = localStorage.getItem('mission_done') === 'true';
+    if (missionDone) {
+      document.getElementById('missionStatus').textContent = '✅ 任務已完成';
+      document.getElementById('missionCard').style.borderColor = 'var(--success)';
     }
 
     function logout() {
       clearSession();
-      window.location.replace('index.html');
+      window.location.replace('/index.html');
     }
   </script>
 </body>

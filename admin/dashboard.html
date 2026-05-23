@@ -7,59 +7,54 @@
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 24px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
     }
     .stat-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      text-align: center;
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 14px; text-align: center;
     }
-    .stat-num  { font-size: 2rem; font-weight: 700; line-height: 1.1; }
-    .stat-label { font-size: .8rem; color: var(--muted); margin-top: 4px; }
-    .progress-bar {
-      height: 6px; background: var(--border); border-radius: 3px;
-      margin-top: 8px; overflow: hidden;
+    .stat-num   { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
+    .stat-label { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: var(--primary); transition: width .4s; }
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
     }
-    .progress-fill {
-      height: 100%; border-radius: 3px;
-      background: var(--primary); transition: width .4s;
+    .section-head h2 { font-size: 1rem; }
+    .search-input {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: .9rem; margin-bottom: 12px;
     }
-    .nav-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .nav-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px 16px;
-      text-align: center;
-      text-decoration: none;
-      color: var(--text);
-      display: flex; flex-direction: column;
-      align-items: center; gap: 8px;
-      border: 2px solid transparent;
-      transition: border-color .15s;
-    }
-    .nav-card:hover { border-color: var(--primary); }
-    .nav-card .icon { font-size: 2rem; }
-    .nav-card span  { font-size: .9rem; font-weight: 600; }
+    .search-input:focus { outline: none; border-color: var(--primary); }
+    #noResult { display: none; text-align: center; padding: 24px; color: var(--muted); font-size: .9rem; }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <h1>後台儀表板</h1>
-    <button onclick="logout()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:.9rem;cursor:pointer;">登出</button>
-  </nav>
+<div class="admin-layout">
 
-  <div class="content">
-    <div id="statsSection">
+  <!-- 側邊欄（桌機） -->
+  <aside class="sidebar">
+    <div class="sidebar-title">後台管理</div>
+    <a href="dashboard.html" class="active"><span class="s-icon">📊</span> 儀表板</a>
+    <a href="checkin.html"><span class="s-icon">📷</span> 報到掃碼</a>
+    <a href="checkout.html"><span class="s-icon">✅</span> 簽退核銷</a>
+    <a href="manage.html"><span class="s-icon">✏️</span> 核銷管理</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-logout">
+      <button onclick="logout()">登出</button>
+    </div>
+  </aside>
+
+  <!-- 主內容 -->
+  <main class="admin-main">
+    <nav class="navbar">
+      <h1>儀表板</h1>
+      <button onclick="loadAll()" style="margin-left:auto;background:none;border:none;color:#fff;font-size:.85rem;cursor:pointer;">重新整理</button>
+    </nav>
+
+    <div class="content" style="padding-top:20px">
+      <!-- 統計 -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-num" id="numTotal">—</div>
@@ -81,38 +76,88 @@
           <div class="progress-bar"><div class="progress-fill" id="barCheckout" style="width:0%;background:var(--success)"></div></div>
         </div>
       </div>
-      <p class="text-muted text-center mb-16" style="font-size:.8rem">
-        <span id="lastUpdate">載入中...</span>
-        <button onclick="loadStats()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:.8rem;margin-left:8px;">重新整理</button>
-      </p>
+
+      <!-- 名單 -->
+      <div class="card">
+        <div class="section-head">
+          <h2>參與者名單</h2>
+          <span id="listCount" style="font-size:.8rem;color:var(--muted)"></span>
+        </div>
+        <input type="text" id="searchInput" class="search-input" placeholder="搜尋姓名或組別…" oninput="filterTable()">
+        <div class="table-wrap">
+          <table class="p-table">
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>組別</th>
+                <th>報到</th>
+                <th>任務</th>
+                <th>簽退</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div id="noResult">找不到符合的參與者</div>
+        </div>
+      </div>
     </div>
+  </main>
+</div>
 
-    <div class="nav-grid">
-      <a href="checkin.html" class="nav-card">
-        <span class="icon">📷</span>
-        <span>報到掃碼</span>
-      </a>
-      <a href="checkout.html" class="nav-card">
-        <span class="icon">✅</span>
-        <span>簽退掃碼</span>
-      </a>
-      <a href="manage.html" class="nav-card" style="grid-column:1/-1">
-        <span class="icon">✏️</span>
-        <span>手動核銷</span>
-      </a>
-    </div>
-  </div>
+<!-- 底部導覽（手機） -->
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="active"><span class="bn-icon">📊</span>儀表板</a>
+  <a href="checkin.html"><span class="bn-icon">📷</span>報到</a>
+  <a href="checkout.html"><span class="bn-icon">✅</span>簽退</a>
+  <a href="manage.html"><span class="bn-icon">✏️</span>核銷</a>
+</nav>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/api.js"></script>
-  <script>
-    requireAdminAuth();
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+<script>
+  requireAdminAuth();
 
-    async function loadStats() {
-      const res = await callAPI('stats', {});
-      if (!res.success) return;
-      const { total, checkin, mission, checkout } = res;
+  let allParticipants = [];
+
+  function icon(ok) {
+    return ok
+      ? '<span class="icon-done">✔</span>'
+      : '<span class="icon-none">—</span>';
+  }
+
+  function renderTable(list) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = list.map(p =>
+      `<tr>
+        <td>${p.name}</td>
+        <td>${p.group}</td>
+        <td>${icon(p.checkin)}</td>
+        <td>${icon(p.mission)}</td>
+        <td>${icon(p.checkout)}</td>
+      </tr>`
+    ).join('');
+    document.getElementById('noResult').style.display = list.length ? 'none' : 'block';
+    document.getElementById('listCount').textContent = list.length + ' 人';
+  }
+
+  function filterTable() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const filtered = q
+      ? allParticipants.filter(p =>
+          p.name.toLowerCase().includes(q) || p.group.toLowerCase().includes(q))
+      : allParticipants;
+    renderTable(filtered);
+  }
+
+  async function loadAll() {
+    const [statsRes, listRes] = await Promise.all([
+      callAPI('stats', {}),
+      callAPI('list',  {}),
+    ]);
+
+    if (statsRes.success) {
+      const { total, checkin, mission, checkout } = statsRes;
       document.getElementById('numTotal').textContent    = total;
       document.getElementById('numCheckin').textContent  = checkin;
       document.getElementById('numMission').textContent  = mission;
@@ -122,17 +167,17 @@
         document.getElementById('barMission').style.width  = (mission  / total * 100) + '%';
         document.getElementById('barCheckout').style.width = (checkout / total * 100) + '%';
       }
-      const now = new Date();
-      document.getElementById('lastUpdate').textContent =
-        '更新於 ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
     }
 
-    function logout() {
-      clearAdminSession();
-      window.location.replace('index.html');
+    if (listRes.success) {
+      allParticipants = listRes.participants;
+      renderTable(allParticipants);
     }
+  }
 
-    loadStats();
-  </script>
+  function logout() { clearAdminSession(); window.location.replace('index.html'); }
+
+  loadAll();
+</script>
 </body>
 </html>

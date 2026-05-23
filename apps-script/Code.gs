@@ -35,6 +35,7 @@ function doPost(e) {
       case 'scan':       return Scan.process(params);
       case 'stats':      return Scan.stats();
       case 'lookup':     return Scan.lookup(params);
+      case 'list':       return Scan.list();
       case 'batch':      return Batch.upload(params);
       default:           return _respond({ success: false, error: 'Unknown action' });
     }

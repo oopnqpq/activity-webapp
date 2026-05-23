@@ -28,6 +28,7 @@ function setSession(data) {
     name:   data.name,
     email:  data.email,
     group:  data.group,
+    code:   data.code,
     token:  CONFIG.STAFF_TOKEN,
     expiry: Date.now() + SESSION_HOURS * 3600 * 1000,
   };

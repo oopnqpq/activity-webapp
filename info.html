@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>個人資訊</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .info-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .info-name  { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    .info-group { font-size: 1rem; color: var(--muted); margin-bottom: 20px; }
+    .qr-section { margin-top: 8px; }
+    .qr-label-top {
+      font-size: .85rem; color: var(--muted);
+      margin-bottom: 12px;
+    }
+    #qrcode { display: inline-block; }
+    #qrcode canvas, #qrcode img { border-radius: 8px; }
+    .qr-hint {
+      font-size: .8rem; color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/home.html" class="back">←</a>
+    <h1>個人資訊</h1>
+  </nav>
+
+  <div class="content" style="padding-top:20px">
+    <div class="info-card">
+      <div class="info-name" id="infoName"></div>
+      <div class="info-group" id="infoGroup"></div>
+
+      <hr class="divider">
+
+      <div class="qr-section">
+        <p class="qr-label-top">報到 QR Code</p>
+        <div id="qrcode"></div>
+        <p class="qr-hint">報到時出示此 QR Code<br>讓工作人員掃描核銷</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/lib/qrcode.min.js"></script>
+  <script>
+    const session = requireAuth();
+    if (session) {
+      document.getElementById('infoName').textContent  = session.name;
+      document.getElementById('infoGroup').textContent = session.group;
+
+      new QRCode(document.getElementById('qrcode'), {
+        text:        JSON.stringify({ name: session.name, code: session.code }),
+        width:       220,
+        height:      220,
+        colorDark:   '#000000',
+        colorLight:  '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+    }
+  </script>
+</body>
+</html>

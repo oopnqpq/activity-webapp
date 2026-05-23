@@ -3,16 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>手動核銷</title>
+  <title>核銷管理</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .status-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: .9rem;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: .9rem;
     }
     .status-row:last-child { border-bottom: none; }
     .status-label { color: var(--muted); }
@@ -21,150 +17,174 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="dashboard.html" class="back">←</a>
-    <h1>手動核銷</h1>
-  </nav>
 
-  <div class="content">
-    <!-- 搜尋表單 -->
-    <div class="card mb-16">
-      <div class="form-group" style="margin-bottom:12px">
-        <label for="nameInput">姓名搜尋</label>
-        <input type="text" id="nameInput" placeholder="輸入完整姓名" inputmode="text">
-      </div>
-      <button id="searchBtn" class="btn btn-primary">
-        <span class="btn-text">搜尋</span>
-        <span class="spinner"></span>
-      </button>
-      <div id="searchAlert" class="alert alert-error mt-16"></div>
-    </div>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">後台管理</div>
+    <a href="dashboard.html"><span class="s-icon">📊</span> 儀表板</a>
+    <a href="checkin.html"><span class="s-icon">📷</span> 報到掃碼</a>
+    <a href="checkout.html"><span class="s-icon">✅</span> 簽退核銷</a>
+    <a href="manage.html" class="active"><span class="s-icon">✏️</span> 核銷管理</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-logout"><button onclick="logout()">登出</button></div>
+  </aside>
 
-    <!-- 搜尋結果 -->
-    <div id="resultSection" style="display:none">
+  <main class="admin-main">
+    <nav class="navbar">
+      <a href="dashboard.html" class="back">←</a>
+      <h1>核銷管理</h1>
+    </nav>
+
+    <div class="content" style="padding-top:16px">
+      <!-- 搜尋 -->
       <div class="card mb-16">
-        <h2 id="resName" style="margin-bottom:4px"></h2>
-        <p class="text-muted mb-16" id="resGroup"></p>
-        <div class="status-row">
-          <span class="status-label">報到</span>
-          <span id="stCheckin"></span>
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="nameInput">姓名搜尋</label>
+          <input type="text" id="nameInput" placeholder="輸入完整姓名" inputmode="text">
         </div>
-        <div class="status-row">
-          <span class="status-label">任務完成</span>
-          <span id="stMission"></span>
-        </div>
-        <div class="status-row">
-          <span class="status-label">簽退</span>
-          <span id="stCheckout"></span>
-        </div>
-        <div class="status-row">
-          <span class="status-label">手動核銷</span>
-          <span id="stManual"></span>
-        </div>
-        <div id="resNoteRow" class="status-row" style="display:none">
-          <span class="status-label">備註</span>
-          <span id="resNote" style="font-size:.85rem;text-align:right;max-width:60%"></span>
-        </div>
-      </div>
-
-      <div id="manualSection" class="card">
-        <div class="form-group">
-          <label for="noteInput">備註（選填）</label>
-          <input type="text" id="noteInput" placeholder="例：手機遺失、現場確認" maxlength="100">
-        </div>
-        <div id="manualAlert" class="alert mt-8"></div>
-        <button id="manualBtn" class="btn btn-primary mt-8">
-          <span class="btn-text">確認手動核銷</span>
+        <button id="searchBtn" class="btn btn-primary">
+          <span class="btn-text">搜尋</span>
           <span class="spinner"></span>
         </button>
+        <div id="searchAlert" class="alert alert-error mt-16"></div>
+      </div>
+
+      <!-- 搜尋結果 -->
+      <div id="resultSection" style="display:none">
+        <div class="card mb-16">
+          <h2 id="resName" style="margin-bottom:4px"></h2>
+          <p class="text-muted mb-16" id="resGroup"></p>
+          <div class="status-row"><span class="status-label">報到</span>     <span id="stCheckin"></span></div>
+          <div class="status-row"><span class="status-label">任務完成</span> <span id="stMission"></span></div>
+          <div class="status-row"><span class="status-label">簽退</span>     <span id="stCheckout"></span></div>
+          <div class="status-row"><span class="status-label">手動核銷</span> <span id="stManual"></span></div>
+          <div id="resNoteRow" class="status-row" style="display:none">
+            <span class="status-label">備註</span>
+            <span id="resNote" style="font-size:.85rem;text-align:right;max-width:60%"></span>
+          </div>
+        </div>
+
+        <div id="manualSection" class="card">
+          <div class="form-group">
+            <label for="noteInput">備註（選填）</label>
+            <input type="text" id="noteInput" placeholder="例：手機遺失、現場確認" maxlength="100">
+          </div>
+          <button id="manualBtn" class="btn btn-primary mt-8">手動核銷</button>
+        </div>
       </div>
     </div>
+  </main>
+</div>
+
+<!-- 確認核銷 Modal -->
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal">
+    <h3>確認手動核銷？</h3>
+    <p id="confirmDesc"></p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="confirmBtn" onclick="doManual()">
+        <span class="btn-text">確認核銷</span>
+        <span class="spinner"></span>
+      </button>
+    </div>
   </div>
+</div>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/api.js"></script>
-  <script>
-    requireAdminAuth();
+<nav class="bottom-nav">
+  <a href="dashboard.html"><span class="bn-icon">📊</span>儀表板</a>
+  <a href="checkin.html"><span class="bn-icon">📷</span>報到</a>
+  <a href="checkout.html"><span class="bn-icon">✅</span>簽退</a>
+  <a href="manage.html" class="active"><span class="bn-icon">✏️</span>核銷</a>
+</nav>
 
-    const nameInput     = document.getElementById('nameInput');
-    const searchBtn     = document.getElementById('searchBtn');
-    const searchAlert   = document.getElementById('searchAlert');
-    const resultSection = document.getElementById('resultSection');
-    const manualSection = document.getElementById('manualSection');
-    const manualBtn     = document.getElementById('manualBtn');
-    const manualAlert   = document.getElementById('manualAlert');
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+<script>
+  requireAdminAuth();
 
-    let currentName = '';
+  const nameInput     = document.getElementById('nameInput');
+  const searchBtn     = document.getElementById('searchBtn');
+  const searchAlert   = document.getElementById('searchAlert');
+  const resultSection = document.getElementById('resultSection');
+  const manualSection = document.getElementById('manualSection');
+  const confirmModal  = document.getElementById('confirmModal');
+  const confirmBtn    = document.getElementById('confirmBtn');
 
-    function setLoading(btn, on) {
-      btn.classList.toggle('loading', on);
-      btn.disabled = on;
+  let currentName = '';
+
+  function setLoading(btn, on) { btn.classList.toggle('loading', on); btn.disabled = on; }
+  function statusSpan(ok) {
+    return ok ? '<span class="check">✔ 是</span>' : '<span class="cross">✘ 否</span>';
+  }
+
+  // ── 搜尋 ──
+  searchBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    searchAlert.classList.remove('show');
+    resultSection.style.display = 'none';
+    if (!name) { searchAlert.textContent = '請輸入姓名'; searchAlert.classList.add('show'); return; }
+
+    setLoading(searchBtn, true);
+    const res = await callAPI('lookup', { name });
+    setLoading(searchBtn, false);
+
+    if (!res.success) {
+      searchAlert.textContent = res.error || '查詢失敗';
+      searchAlert.classList.add('show');
+      return;
     }
 
-    function statusSpan(ok) {
-      return ok ? '<span class="check">✔ 是</span>' : '<span class="cross">✘ 否</span>';
+    currentName = res.name;
+    document.getElementById('resName').textContent    = res.name;
+    document.getElementById('resGroup').textContent   = res.group;
+    document.getElementById('stCheckin').innerHTML    = statusSpan(res.checkin);
+    document.getElementById('stMission').innerHTML    = statusSpan(res.mission);
+    document.getElementById('stCheckout').innerHTML   = statusSpan(res.checkout);
+    document.getElementById('stManual').innerHTML     = statusSpan(res.manual);
+
+    if (res.note) {
+      document.getElementById('resNoteRow').style.display = 'flex';
+      document.getElementById('resNote').textContent = res.note;
+    } else {
+      document.getElementById('resNoteRow').style.display = 'none';
     }
+    manualSection.style.display = res.manual ? 'none' : 'block';
+    resultSection.style.display = 'block';
+  });
 
-    // ── 搜尋 ──
-    searchBtn.addEventListener('click', async () => {
-      const name = nameInput.value.trim();
-      searchAlert.classList.remove('show');
-      resultSection.style.display = 'none';
-      if (!name) { searchAlert.textContent = '請輸入姓名'; searchAlert.classList.add('show'); return; }
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchBtn.click(); });
 
-      setLoading(searchBtn, true);
-      const res = await callAPI('lookup', { name });
-      setLoading(searchBtn, false);
+  // ── 手動核銷（先跳 Modal）──
+  document.getElementById('manualBtn').addEventListener('click', () => {
+    document.getElementById('confirmDesc').textContent =
+      '即將為「' + currentName + '」手動核銷，此操作將記錄於系統，請確認。';
+    confirmModal.classList.add('open');
+  });
 
-      if (!res.success) {
-        searchAlert.textContent = res.error || '查詢失敗';
-        searchAlert.classList.add('show');
-        return;
-      }
+  async function doManual() {
+    const note = document.getElementById('noteInput').value.trim();
+    setLoading(confirmBtn, true);
+    const res = await callAPI('scan', { type: 'manual', name: currentName, note });
+    setLoading(confirmBtn, false);
+    closeModal();
 
-      currentName = res.name;
-      document.getElementById('resName').textContent  = res.name;
-      document.getElementById('resGroup').textContent = res.group;
-      document.getElementById('stCheckin').innerHTML  = statusSpan(res.checkin);
-      document.getElementById('stMission').innerHTML  = statusSpan(res.mission);
-      document.getElementById('stCheckout').innerHTML = statusSpan(res.checkout);
-      document.getElementById('stManual').innerHTML   = statusSpan(res.manual);
+    if (res.success) {
+      document.getElementById('stManual').innerHTML = statusSpan(true);
+      manualSection.style.display = 'none';
+      // 顯示成功提示
+      searchAlert.textContent = '核銷成功：' + res.name + '（' + res.group + '）';
+      searchAlert.className = 'alert alert-success mt-16 show';
+    } else {
+      searchAlert.textContent = res.error || '核銷失敗';
+      searchAlert.className = 'alert alert-error mt-16 show';
+    }
+  }
 
-      if (res.note) {
-        document.getElementById('resNoteRow').style.display = 'flex';
-        document.getElementById('resNote').textContent = res.note;
-      } else {
-        document.getElementById('resNoteRow').style.display = 'none';
-      }
+  function closeModal() { confirmModal.classList.remove('open'); }
 
-      // 已核銷則隱藏核銷區塊
-      manualSection.style.display = res.manual ? 'none' : 'block';
-      manualAlert.classList.remove('show');
-      resultSection.style.display = 'block';
-    });
-
-    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchBtn.click(); });
-
-    // ── 手動核銷 ──
-    manualBtn.addEventListener('click', async () => {
-      manualAlert.classList.remove('show');
-      const note = document.getElementById('noteInput').value.trim();
-
-      setLoading(manualBtn, true);
-      const res = await callAPI('scan', { type: 'manual', name: currentName, note });
-      setLoading(manualBtn, false);
-
-      if (res.success) {
-        manualAlert.textContent = '核銷成功：' + res.name + '（' + res.group + '）';
-        manualAlert.className = 'alert alert-success mt-8 show';
-        manualSection.style.display = 'none';
-        document.getElementById('stManual').innerHTML = statusSpan(true);
-      } else {
-        manualAlert.textContent = res.error || '核銷失敗';
-        manualAlert.className = 'alert alert-error mt-8 show';
-      }
-    });
-  </script>
+  function logout() { clearAdminSession(); window.location.replace('index.html'); }
+</script>
 </body>
 </html>

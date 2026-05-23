@@ -107,6 +107,25 @@ var Scan = {
     });
   },
 
+  list: function() {
+    var sheet = _getSheet();
+    var data  = sheet.getDataRange().getValues();
+    var participants = [];
+    for (var i = 1; i < data.length; i++) {
+      var name = String(data[i][COL.NAME] || '').trim();
+      if (!name) continue;
+      participants.push({
+        name:     name,
+        group:    String(data[i][COL.GROUP] || ''),
+        checkin:  !!data[i][COL.CHECKIN],
+        mission:  !!data[i][COL.MISSION],
+        checkout: !!data[i][COL.CHECKOUT],
+        manual:   !!data[i][COL.MANUAL],
+      });
+    }
+    return _respond({ success: true, participants: participants });
+  },
+
   lookup: function(params) {
     var inputName = String(params.name || '').trim();
     if (!inputName) return _respond({ success: false, error: '姓名不可為空' });

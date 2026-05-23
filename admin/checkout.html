@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>簽退掃碼</title>
+  <title>簽退核銷</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .scanner-wrap {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: #000;
-      aspect-ratio: 1;
+      position: relative; width: 100%; max-width: 400px;
+      margin: 0 auto; border-radius: var(--radius);
+      overflow: hidden; background: #000; aspect-ratio: 1;
     }
     #video { width: 100%; height: 100%; object-fit: cover; display: block; }
     .scan-guide {
@@ -24,154 +19,202 @@
     }
     .scan-box {
       width: 60%; aspect-ratio: 1;
-      border: 3px solid rgba(255,255,255,.8);
-      border-radius: 8px;
+      border: 3px solid rgba(255,255,255,.8); border-radius: 8px;
       box-shadow: 0 0 0 2000px rgba(0,0,0,.35);
     }
-    .result-card {
-      border-radius: var(--radius);
-      padding: 24px 20px;
-      text-align: center;
-      animation: fadeIn .2s ease;
-    }
+    .result-card { border-radius: var(--radius); padding: 24px 20px; text-align: center; animation: fadeIn .2s ease; }
     .result-card.success { background: #DCFCE7; }
     .result-card.error   { background: #FEE2E2; }
     .result-card.warn    { background: #FEF9C3; }
-    .result-icon  { font-size: 3rem; margin-bottom: 8px; }
-    .result-msg   { font-size: 1.1rem; font-weight: 700; }
-    .result-sub   { font-size: .9rem; color: var(--muted); margin-top: 4px; }
+    .result-icon { font-size: 3rem; margin-bottom: 8px; }
+    .result-msg  { font-size: 1.1rem; font-weight: 700; }
+    .result-sub  { font-size: .9rem; color: var(--muted); margin-top: 4px; }
     @keyframes fadeIn { from { opacity:0; transform:scale(.95) } to { opacity:1; transform:scale(1) } }
     #canvas { display: none; }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="dashboard.html" class="back">←</a>
-    <h1>簽退掃碼</h1>
-  </nav>
 
-  <div class="content">
-    <div id="scanView">
-      <div class="scanner-wrap">
-        <video id="video" autoplay playsinline muted></video>
-        <div class="scan-guide"><div class="scan-box"></div></div>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">後台管理</div>
+    <a href="dashboard.html"><span class="s-icon">📊</span> 儀表板</a>
+    <a href="checkin.html"><span class="s-icon">📷</span> 報到掃碼</a>
+    <a href="checkout.html" class="active"><span class="s-icon">✅</span> 簽退核銷</a>
+    <a href="manage.html"><span class="s-icon">✏️</span> 核銷管理</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-logout"><button onclick="logout()">登出</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <nav class="navbar">
+      <a href="dashboard.html" class="back">←</a>
+      <h1>簽退核銷</h1>
+    </nav>
+
+    <div class="content" style="padding-top:16px">
+      <div id="scanView">
+        <div class="scanner-wrap">
+          <video id="video" autoplay playsinline muted></video>
+          <div class="scan-guide"><div class="scan-box"></div></div>
+        </div>
+        <canvas id="canvas"></canvas>
+        <p class="text-muted text-center mt-16" style="font-size:.9rem">將簽退 QR Code 對準框內</p>
+        <div id="scanAlert" class="alert alert-error mt-16"></div>
       </div>
-      <canvas id="canvas"></canvas>
-      <p class="text-muted text-center mt-16" style="font-size:.9rem">將簽退 QR Code 對準框內</p>
-      <div id="scanAlert" class="alert alert-error mt-16"></div>
+
+      <div id="resultView" style="display:none">
+        <div id="resultCard" class="result-card">
+          <div class="result-icon" id="resultIcon"></div>
+          <div class="result-msg"  id="resultMsg"></div>
+          <div class="result-sub"  id="resultSub"></div>
+        </div>
+        <button class="btn btn-primary mt-16" onclick="resumeScan()">繼續掃描</button>
+      </div>
     </div>
+  </main>
+</div>
 
-    <div id="resultView" style="display:none">
-      <div id="resultCard" class="result-card">
-        <div class="result-icon" id="resultIcon"></div>
-        <div class="result-msg"  id="resultMsg"></div>
-        <div class="result-sub"  id="resultSub"></div>
-      </div>
-      <button class="btn btn-primary mt-16" onclick="resumeScan()">繼續掃描</button>
+<!-- 確認核銷 Modal -->
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal">
+    <h3>確認簽退核銷？</h3>
+    <p id="confirmDesc">此操作將標記該參與者已完成簽退。</p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="cancelConfirm()">取消</button>
+      <button class="btn btn-success" id="confirmBtn" onclick="doCheckout()">
+        <span class="btn-text">確認核銷</span>
+        <span class="spinner"></span>
+      </button>
     </div>
   </div>
+</div>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/api.js"></script>
-  <script src="../lib/jsQR.min.js"></script>
-  <script>
-    requireAdminAuth();
+<nav class="bottom-nav">
+  <a href="dashboard.html"><span class="bn-icon">📊</span>儀表板</a>
+  <a href="checkin.html"><span class="bn-icon">📷</span>報到</a>
+  <a href="checkout.html" class="active"><span class="bn-icon">✅</span>簽退</a>
+  <a href="manage.html"><span class="bn-icon">✏️</span>核銷</a>
+</nav>
 
-    const video      = document.getElementById('video');
-    const canvas     = document.getElementById('canvas');
-    const ctx        = canvas.getContext('2d');
-    const scanView   = document.getElementById('scanView');
-    const resultView = document.getElementById('resultView');
-    const scanAlert  = document.getElementById('scanAlert');
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+<script src="../lib/jsQR.min.js"></script>
+<script>
+  requireAdminAuth();
 
-    let scanning = false;
-    let animFrame = null;
-    let stream    = null;
+  const video      = document.getElementById('video');
+  const canvas     = document.getElementById('canvas');
+  const ctx        = canvas.getContext('2d');
+  const scanView   = document.getElementById('scanView');
+  const resultView = document.getElementById('resultView');
+  const scanAlert  = document.getElementById('scanAlert');
 
-    async function startCamera() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } }
-        });
-        video.srcObject = stream;
-        await new Promise(r => video.onloadedmetadata = r);
-        canvas.width  = video.videoWidth;
-        canvas.height = video.videoHeight;
-        scanning = true;
-        scanFrame();
-      } catch (err) {
-        scanAlert.textContent = '無法開啟相機：' + err.message;
-        scanAlert.classList.add('show');
-      }
-    }
+  let scanning   = false;
+  let animFrame  = null;
+  let pendingQR  = null; // 等待確認的 QR 資料
 
-    function scanFrame() {
-      if (!scanning) return;
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert',
-        });
-        if (code) {
-          scanning = false;
-          cancelAnimationFrame(animFrame);
-          handleQR(code.data);
-          return;
-        }
-      }
-      animFrame = requestAnimationFrame(scanFrame);
-    }
-
-    async function handleQR(raw) {
-      let parsed;
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        showResult('error', '❌', 'QR Code 格式錯誤', raw);
-        return;
-      }
-
-      const { name, code } = parsed;
-      if (!name || !code) {
-        showResult('error', '❌', 'QR Code 資料不完整', '');
-        return;
-      }
-
-      const res = await callAPI('scan', { type: 'checkout', name, code });
-
-      if (res.success) {
-        showResult('success', '✅', res.message, res.name + '（' + res.group + '）');
-      } else if (res.error === '已重複簽退') {
-        showResult('warn', '⚠️', '已重複簽退', (res.name || '') + '（' + (res.group || '') + '）');
-      } else {
-        showResult('error', '❌', res.error || '發生錯誤', (res.name ? res.name + '（' + res.group + '）' : ''));
-      }
-    }
-
-    function showResult(type, icon, msg, sub) {
-      scanView.style.display   = 'none';
-      resultView.style.display = 'block';
-      const card = document.getElementById('resultCard');
-      card.className = 'result-card ' + type;
-      document.getElementById('resultIcon').textContent = icon;
-      document.getElementById('resultMsg').textContent  = msg;
-      document.getElementById('resultSub').textContent  = sub;
-
-      if (type === 'success') {
-        setTimeout(resumeScan, 2500);
-      }
-    }
-
-    function resumeScan() {
-      resultView.style.display = 'none';
-      scanView.style.display   = 'block';
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } }
+      });
+      video.srcObject = stream;
+      await new Promise(r => video.onloadedmetadata = r);
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
       scanning = true;
       scanFrame();
+    } catch (err) {
+      scanAlert.textContent = '無法開啟相機：' + err.message;
+      scanAlert.classList.add('show');
     }
+  }
 
-    startCamera();
-  </script>
+  function scanFrame() {
+    if (!scanning) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert',
+      });
+      if (code) {
+        scanning = false;
+        cancelAnimationFrame(animFrame);
+        handleQR(code.data);
+        return;
+      }
+    }
+    animFrame = requestAnimationFrame(scanFrame);
+  }
+
+  function handleQR(raw) {
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch {
+      showResult('error', '❌', 'QR Code 格式錯誤', '');
+      return;
+    }
+    if (!parsed.name || !parsed.code) {
+      showResult('error', '❌', 'QR Code 資料不完整', '');
+      return;
+    }
+    pendingQR = parsed;
+    document.getElementById('confirmDesc').textContent =
+      '即將為「' + parsed.name + '」完成簽退核銷，請確認。';
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  async function doCheckout() {
+    if (!pendingQR) return;
+    const btn = document.getElementById('confirmBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const res = await callAPI('scan', { type: 'checkout', name: pendingQR.name, code: pendingQR.code });
+
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    document.getElementById('confirmModal').classList.remove('open');
+    pendingQR = null;
+
+    if (res.success) {
+      showResult('success', '✅', res.message, res.name + '（' + res.group + '）');
+    } else if (res.error === '已重複簽退') {
+      showResult('warn', '⚠️', '已重複簽退', (res.name || '') + '（' + (res.group || '') + '）');
+    } else {
+      showResult('error', '❌', res.error || '發生錯誤', res.name ? res.name + '（' + res.group + '）' : '');
+    }
+  }
+
+  function cancelConfirm() {
+    pendingQR = null;
+    document.getElementById('confirmModal').classList.remove('open');
+    resumeScan();
+  }
+
+  function showResult(type, icon, msg, sub) {
+    scanView.style.display   = 'none';
+    resultView.style.display = 'block';
+    const card = document.getElementById('resultCard');
+    card.className = 'result-card ' + type;
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultMsg').textContent  = msg;
+    document.getElementById('resultSub').textContent  = sub;
+    if (type === 'success') setTimeout(resumeScan, 2500);
+  }
+
+  function resumeScan() {
+    resultView.style.display = 'none';
+    scanView.style.display   = 'block';
+    scanning = true;
+    scanFrame();
+  }
+
+  function logout() { clearAdminSession(); window.location.replace('index.html'); }
+
+  startCamera();
+</script>
 </body>
 </html>

@@ -33,6 +33,7 @@ var Auth = {
           name:    row[COL.NAME],
           email:   row[COL.EMAIL],
           group:   row[COL.GROUP],
+          code:    String(row[COL.CODE]),
         });
       }
     }
