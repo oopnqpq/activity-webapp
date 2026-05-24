@@ -408,7 +408,7 @@ async function submitAll() {
 
   btn.classList.remove('loading');
 
-  if (res.success) {
+  if (res.success || res.error === '任務已完成，請勿重複送出') {
     localStorage.setItem(MISSION_DONE_KEY, 'true');
     _saveState();
     alert.style.display = 'none';
