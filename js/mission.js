@@ -59,6 +59,12 @@ function _saveState() {
   // Set Google Form link
   document.getElementById('formLink').href = CONFIG.FORM_URL_M1;
 
+  // Option A：點擊連結後才啟用「我已完成問卷」按鈕
+  document.getElementById('formLink').addEventListener('click', function() {
+    document.getElementById('m1DoneBtn').disabled = false;
+    document.getElementById('m1Hint').style.display = 'none';
+  });
+
   // If mission already fully submitted, show QR only
   if (localStorage.getItem(MISSION_DONE_KEY) === 'true') {
     _showCheckoutQR();
