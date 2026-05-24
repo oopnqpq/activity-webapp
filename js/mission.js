@@ -261,7 +261,7 @@ async function _renderCertificate() {
   const ctx = cvs.getContext('2d');
 
   // Try loading designer's background first
-  const bgLoaded = await _tryLoadImage('/assets/certificate-bg.png');
+  const bgLoaded = await _tryLoadImage('assets/certificate-bg.png');
   if (bgLoaded) {
     ctx.drawImage(bgLoaded, 0, 0, W, H);
   } else {

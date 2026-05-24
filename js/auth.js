@@ -44,7 +44,7 @@ function clearSession() {
 function requireAuth() {
   const session = getSession();
   if (!session) {
-    window.location.href = '/index.html';
+    window.location.href = 'index.html';
     return null;
   }
   return session;
@@ -80,7 +80,7 @@ function clearAdminSession() {
 function requireAdminAuth() {
   const s = getAdminSession();
   if (!s) {
-    window.location.href = '/admin/index.html';
+    window.location.href = 'index.html';
     return null;
   }
   return s;

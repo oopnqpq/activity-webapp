@@ -108,18 +108,26 @@
 
 ## 路徑規則（GitHub Pages 帳號轉移關鍵）
 
-所有 HTML 檔案內的連結與資源引用，**一律用 `/` 開頭的絕對路徑**，禁止出現任何網域名稱：
+所有 HTML 檔案內的連結與資源引用，**一律用相對路徑**，禁止出現網域名稱或 `/` 開頭的絕對路徑：
 
 ```html
-<!-- ✅ 正確 -->
-<script src="/js/auth.js"></script>
-<link rel="stylesheet" href="/css/style.css">
-<a href="/home.html">回主頁</a>
-<img src="/assets/route-map.jpg">
+<!-- ✅ 正確（根目錄頁面：index.html、home.html、mission.html 等） -->
+<script src="js/auth.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<a href="home.html">回主頁</a>
+<img src="assets/route-map.jpg">
+
+<!-- ✅ 正確（admin/ 子目錄頁面） -->
+<script src="../js/auth.js"></script>
+<link rel="stylesheet" href="../css/style.css">
+<a href="dashboard.html">儀表板</a>  <!-- admin 內部連結不加 ../ -->
 
 <!-- ❌ 禁止 -->
+<script src="/js/auth.js"></script>  <!-- GitHub Pages 子目錄下會 404 -->
 <script src="https://oopnqpq.github.io/activity-webapp/js/auth.js"></script>
 ```
+
+JS 中的 `window.location` 導向同樣使用相對路徑（`'index.html'`、`'home.html'`），瀏覽器會依當前頁面所在目錄解析。
 
 環境相關的值（API URL、token、Form URL）只能出現在 `js/config.js`，其他檔案一律讀 `CONFIG.*`。
 

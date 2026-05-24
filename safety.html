@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安全提醒 / 路線</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <nav class="navbar">
-    <a href="/home.html" class="back">←</a>
+    <a href="home.html" class="back">←</a>
     <h1>安全提醒 / 路線</h1>
   </nav>
 
@@ -22,7 +22,7 @@
     <div id="tab-safety" class="tab-panel active">
       <!-- 活動方提供圖片後替換 src，可放多張 -->
       <img
-        src="/assets/safety-placeholder.png"
+        src="assets/safety-placeholder.png"
         alt="安全提醒"
         class="zoomable"
         onclick="openZoom(this.src)"
@@ -33,7 +33,7 @@
     <!-- 路線地圖 -->
     <div id="tab-route" class="tab-panel">
       <img
-        src="/assets/route-placeholder.png"
+        src="assets/route-placeholder.png"
         alt="活動路線"
         class="zoomable"
         onclick="openZoom(this.src)"
@@ -47,8 +47,8 @@
     <img id="zoomImg" src="" alt="">
   </div>
 
-  <script src="/js/config.js"></script>
-  <script src="/js/auth.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
   <script>
     requireAuth();
 

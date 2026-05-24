@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>活動主頁</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <nav class="navbar">
@@ -16,7 +16,7 @@
     <p id="greeting" class="text-muted mb-16" style="font-size:.9rem"></p>
 
     <div class="hub-list">
-      <a href="/info.html" class="hub-card">
+      <a href="info.html" class="hub-card">
         <div class="hub-icon">👤</div>
         <div class="hub-body">
           <h3>個人資訊</h3>
@@ -25,7 +25,7 @@
         <span class="hub-arrow">›</span>
       </a>
 
-      <a href="/safety.html" class="hub-card">
+      <a href="safety.html" class="hub-card">
         <div class="hub-icon">🗺</div>
         <div class="hub-body">
           <h3>安全提醒 / 路線</h3>
@@ -34,7 +34,7 @@
         <span class="hub-arrow">›</span>
       </a>
 
-      <a href="/mission.html" class="hub-card" id="missionCard">
+      <a href="mission.html" class="hub-card" id="missionCard">
         <div class="hub-icon">🎯</div>
         <div class="hub-body">
           <h3>使命關卡任務</h3>
@@ -45,8 +45,8 @@
     </div>
   </div>
 
-  <script src="/js/config.js"></script>
-  <script src="/js/auth.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
   <script>
     const session = requireAuth();
     if (session) {
@@ -63,7 +63,7 @@
 
     function logout() {
       clearSession();
-      window.location.replace('/index.html');
+      window.location.replace('index.html');
     }
   </script>
 </body>
