@@ -147,28 +147,20 @@
   }
 
   async function handleQR(raw) {
-    let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      showResult('error', '❌', 'QR Code 格式錯誤', raw);
+    const code = raw.trim();
+    if (!code) {
+      showResult('error', '❌', 'QR Code 無效', '');
       return;
     }
 
-    const { name, code } = parsed;
-    if (!name || !code) {
-      showResult('error', '❌', 'QR Code 資料不完整', '');
-      return;
-    }
-
-    const res = await callAPI('scan', { type: 'checkin', name, code });
+    const res = await callAPI('scan', { type: 'checkin', code });
 
     if (res.success) {
       showResult('success', '✅', res.message, res.name + '（' + res.group + '）');
     } else if (res.error === '已重複報到') {
       showResult('warn', '⚠️', '已重複報到', (res.name || '') + '（' + (res.group || '') + '）');
     } else {
-      showResult('error', '❌', res.error || '發生錯誤', (res.name ? res.name + '（' + res.group + '）' : ''));
+      showResult('error', '❌', res.error || '發生錯誤', res.name ? res.name + '（' + res.group + '）' : '');
     }
   }
 

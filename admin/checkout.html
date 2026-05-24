@@ -151,18 +151,13 @@
   }
 
   function handleQR(raw) {
-    let parsed;
-    try { parsed = JSON.parse(raw); } catch {
-      showResult('error', '❌', 'QR Code 格式錯誤', '');
+    const code = raw.trim();
+    if (!code) {
+      showResult('error', '❌', 'QR Code 無效', '');
       return;
     }
-    if (!parsed.name || !parsed.code) {
-      showResult('error', '❌', 'QR Code 資料不完整', '');
-      return;
-    }
-    pendingQR = parsed;
-    document.getElementById('confirmDesc').textContent =
-      '即將為「' + parsed.name + '」完成簽退核銷，請確認。';
+    pendingQR = { code };
+    document.getElementById('confirmDesc').textContent = '即將完成簽退核銷，請確認。';
     document.getElementById('confirmModal').classList.add('open');
   }
 
@@ -172,7 +167,7 @@
     btn.classList.add('loading');
     btn.disabled = true;
 
-    const res = await callAPI('scan', { type: 'checkout', name: pendingQR.name, code: pendingQR.code });
+    const res = await callAPI('scan', { type: 'checkout', code: pendingQR.code });
 
     btn.classList.remove('loading');
     btn.disabled = false;

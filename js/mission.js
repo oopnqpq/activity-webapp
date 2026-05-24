@@ -428,7 +428,7 @@ function _showCheckoutQR() {
   const qrWrap = document.getElementById('checkoutQR');
   if (qrWrap.childNodes.length) return; // already rendered
   new QRCode(qrWrap, {
-    text:         JSON.stringify({ name: session.name, code: session.code }),
+    text:         session.code,
     width:        220,
     height:       220,
     colorDark:    '#000000',

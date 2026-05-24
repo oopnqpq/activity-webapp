@@ -15,8 +15,14 @@ var Scan = {
     }
 
     var inputName = String(params.name || '').trim();
-    if (!inputName) {
+    var inputCode = String(params.code || '').trim();
+
+    // manual 以姓名查找；checkin/checkout 以驗證碼查找（code 已唯一）
+    if (type === 'manual' && !inputName) {
       return _respond({ success: false, error: '姓名不可為空' });
+    }
+    if (type !== 'manual' && !inputCode) {
+      return _respond({ success: false, error: '驗證碼不可為空' });
     }
 
     var sheet = _getSheet();
@@ -25,28 +31,27 @@ var Scan = {
     try {
       lock.waitLock(10000);
 
-      var data      = sheet.getDataRange().getValues();
-      var inputCode = String(params.code || '').trim();
-      var rowIndex  = -1;
-      var rowData   = null;
+      var data     = sheet.getDataRange().getValues();
+      var rowIndex = -1;
+      var rowData  = null;
 
       for (var i = 1; i < data.length; i++) {
-        var name = String(data[i][COL.NAME] || '').trim();
-        if (name !== inputName) continue;
-
         if (type === 'manual') {
-          rowIndex = i; rowData = data[i]; break;
-        }
-        // checkin / checkout：需比對驗證碼
-        if (String(data[i][COL.CODE] || '').trim() === inputCode) {
-          rowIndex = i; rowData = data[i]; break;
+          if (String(data[i][COL.NAME] || '').trim() === inputName) {
+            rowIndex = i; rowData = data[i]; break;
+          }
+        } else {
+          // checkin / checkout：直接以驗證碼比對
+          if (String(data[i][COL.CODE] || '').trim() === inputCode) {
+            rowIndex = i; rowData = data[i]; break;
+          }
         }
       }
 
       if (rowIndex === -1) {
         return _respond({
           success: false,
-          error: type === 'manual' ? '找不到此姓名' : '姓名或驗證碼錯誤',
+          error: type === 'manual' ? '找不到此姓名' : 'QR Code 無效',
         });
       }
 
