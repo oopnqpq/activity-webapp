@@ -68,9 +68,6 @@ function _saveState() {
     return;
   }
 
-  // Init signature pad after DOM is ready
-  _initSigPad();
-
   // Photo input change handler
   document.getElementById('photoInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
@@ -81,9 +78,13 @@ function _saveState() {
 })();
 
 function _initSigPad() {
+  if (sigPad) return;
+  if (typeof SignaturePad === 'undefined') {
+    alert('簽名元件載入失敗，請重新整理頁面');
+    return;
+  }
   const canvas = document.getElementById('sigCanvas');
-  // Match canvas pixel size to CSS size to avoid scaling issues
-  canvas.width  = canvas.offsetWidth  || 320;
+  canvas.width  = canvas.offsetWidth || 320;
   canvas.height = 160;
   sigPad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)' });
 }
@@ -131,14 +132,17 @@ function _setCard(cardId, bodyId, isDone, isUnlocked) {
 function toggleCard(cardId) {
   const card = document.getElementById(cardId);
   if (card.classList.contains('locked')) return;
-  const bodyId = cardId.replace('card', 'body');
-  document.getElementById(bodyId).classList.toggle('open');
+  const body = document.getElementById(cardId.replace('card', 'body'));
+  const opening = !body.classList.contains('open');
+  body.classList.toggle('open');
+  if (cardId === 'card3' && opening) _initSigPad();
 }
 
 function _openCard(cardId) {
   const card = document.getElementById(cardId);
   if (card.classList.contains('locked')) return;
   document.getElementById(cardId.replace('card', 'body')).classList.add('open');
+  if (cardId === 'card3') _initSigPad();
 }
 
 // ── ① 問卷 ───────────────────────────────────────────────────────
