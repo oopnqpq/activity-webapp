@@ -45,7 +45,7 @@
         '歡迎！' + session.name + '，您是 ' + session.group;
     }
 
-    const missionDone = localStorage.getItem('mission_done') === 'true';
+    const missionDone = localStorage.getItem('mission_done_' + (session && session.code || 'anon')) === 'true';
     if (missionDone) {
       document.getElementById('missionPill').classList.add('mission-done');
       document.getElementById('missionStatus').textContent = '✅ 任務已完成';
