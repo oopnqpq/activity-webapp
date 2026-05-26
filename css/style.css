@@ -663,3 +663,19 @@ table.p-table {
 .hub-pill p  { font-size: .85rem; color: var(--muted); margin: 0; }
 .hub-pill.mission-done { border-color: var(--success); }
 .hub-pill.mission-done h3 { color: var(--success); }
+
+/* ===== Desktop RWD: center app in 480px column ===== */
+@media (min-width: 640px) {
+  body {
+    background: url('../assets/bg.jpg') center/cover no-repeat fixed;
+    background-color: var(--bg);
+  }
+
+  .app-shell {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 480px;
+    box-shadow: 0 0 60px rgba(0,0,0,.35);
+  }
+}

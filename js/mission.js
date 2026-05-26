@@ -6,8 +6,8 @@
  *   ⑥ 送出啟用條件：mission1_done && mission5_done
  */
 
-const MISSION_STATE_KEY = 'mission_state';
-const MISSION_DONE_KEY  = 'mission_done';
+const MISSION_STATE_KEY = () => `mission_state_${session?.code || 'anon'}`;
+const MISSION_DONE_KEY  = () => `mission_done_${session?.code || 'anon'}`;
 
 // ── In-memory state ──────────────────────────────────────────────
 let session         = null;
@@ -33,7 +33,7 @@ let mission5_done = false;
 
 function _loadState() {
   try {
-    const raw = localStorage.getItem(MISSION_STATE_KEY);
+    const raw = localStorage.getItem(MISSION_STATE_KEY());
     if (raw) {
       const s = JSON.parse(raw);
       mission1_done = !!s.m1;
@@ -43,7 +43,7 @@ function _loadState() {
 }
 
 function _saveState() {
-  localStorage.setItem(MISSION_STATE_KEY, JSON.stringify({
+  localStorage.setItem(MISSION_STATE_KEY(), JSON.stringify({
     m1: mission1_done,
     m5: mission5_done,
   }));
@@ -66,7 +66,7 @@ function _saveState() {
   });
 
   // If mission already fully submitted, show QR only
-  if (localStorage.getItem(MISSION_DONE_KEY) === 'true') {
+  if (localStorage.getItem(MISSION_DONE_KEY()) === 'true') {
     _showCheckoutQR();
     document.querySelector('.content').querySelectorAll('.task-card, .submit-section').forEach(el => {
       el.style.display = 'none';
@@ -415,7 +415,7 @@ async function submitAll() {
   btn.classList.remove('loading');
 
   if (res.success || res.error === '任務已完成，請勿重複送出') {
-    localStorage.setItem(MISSION_DONE_KEY, 'true');
+    localStorage.setItem(MISSION_DONE_KEY(), 'true');
     _saveState();
     alert.style.display = 'none';
     _showCheckoutQR();
