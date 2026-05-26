@@ -31,7 +31,6 @@
 
   <main class="admin-main">
     <nav class="navbar">
-      <a href="dashboard.html" class="back">←</a>
       <h1>核銷管理</h1>
     </nav>
 
@@ -47,6 +46,12 @@
           <span class="spinner"></span>
         </button>
         <div id="searchAlert" class="alert alert-error mt-16"></div>
+      </div>
+
+      <!-- 多筆同名選擇 -->
+      <div id="pickerSection" style="display:none">
+        <p class="text-muted mb-8" style="font-size:.9rem">找到多筆同名紀錄，請選擇：</p>
+        <div id="pickerList"></div>
       </div>
 
       <!-- 搜尋結果 -->
@@ -107,16 +112,39 @@
   const nameInput     = document.getElementById('nameInput');
   const searchBtn     = document.getElementById('searchBtn');
   const searchAlert   = document.getElementById('searchAlert');
+  const pickerSection = document.getElementById('pickerSection');
+  const pickerList    = document.getElementById('pickerList');
   const resultSection = document.getElementById('resultSection');
   const manualSection = document.getElementById('manualSection');
   const confirmModal  = document.getElementById('confirmModal');
   const confirmBtn    = document.getElementById('confirmBtn');
 
   let currentName = '';
+  let currentCode = '';
 
   function setLoading(btn, on) { btn.classList.toggle('loading', on); btn.disabled = on; }
   function statusSpan(ok) {
     return ok ? '<span class="check">✔ 是</span>' : '<span class="cross">✘ 否</span>';
+  }
+
+  function showPersonResult(person) {
+    currentName = person.name;
+    currentCode = person.code;
+    pickerSection.style.display = 'none';
+    document.getElementById('resName').textContent    = person.name;
+    document.getElementById('resGroup').textContent   = person.group;
+    document.getElementById('stCheckin').innerHTML    = statusSpan(person.checkin);
+    document.getElementById('stMission').innerHTML    = statusSpan(person.mission);
+    document.getElementById('stCheckout').innerHTML   = statusSpan(person.checkout);
+    document.getElementById('stManual').innerHTML     = statusSpan(person.manual);
+    if (person.note) {
+      document.getElementById('resNoteRow').style.display = 'flex';
+      document.getElementById('resNote').textContent = person.note;
+    } else {
+      document.getElementById('resNoteRow').style.display = 'none';
+    }
+    manualSection.style.display = person.manual ? 'none' : 'block';
+    resultSection.style.display = 'block';
   }
 
   // ── 搜尋 ──
@@ -124,6 +152,7 @@
     const name = nameInput.value.trim();
     searchAlert.classList.remove('show');
     resultSection.style.display = 'none';
+    pickerSection.style.display = 'none';
     if (!name) { searchAlert.textContent = '請輸入姓名'; searchAlert.classList.add('show'); return; }
 
     setLoading(searchBtn, true);
@@ -136,22 +165,21 @@
       return;
     }
 
-    currentName = res.name;
-    document.getElementById('resName').textContent    = res.name;
-    document.getElementById('resGroup').textContent   = res.group;
-    document.getElementById('stCheckin').innerHTML    = statusSpan(res.checkin);
-    document.getElementById('stMission').innerHTML    = statusSpan(res.mission);
-    document.getElementById('stCheckout').innerHTML   = statusSpan(res.checkout);
-    document.getElementById('stManual').innerHTML     = statusSpan(res.manual);
-
-    if (res.note) {
-      document.getElementById('resNoteRow').style.display = 'flex';
-      document.getElementById('resNote').textContent = res.note;
+    if (res.results.length === 1) {
+      showPersonResult(res.results[0]);
     } else {
-      document.getElementById('resNoteRow').style.display = 'none';
+      // 多筆同名：顯示選擇清單
+      pickerList.innerHTML = '';
+      res.results.forEach(function(p) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline mb-8';
+        btn.style.cssText = 'width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center';
+        btn.innerHTML = '<span>' + p.name + '</span><span class="text-muted" style="font-size:.85rem">' + p.group + '</span>';
+        btn.addEventListener('click', function() { showPersonResult(p); });
+        pickerList.appendChild(btn);
+      });
+      pickerSection.style.display = 'block';
     }
-    manualSection.style.display = res.manual ? 'none' : 'block';
-    resultSection.style.display = 'block';
   });
 
   nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchBtn.click(); });
@@ -167,14 +195,13 @@
     const note  = document.getElementById('noteInput').value.trim();
     const staff = adminSession ? adminSession.username : '';
     setLoading(confirmBtn, true);
-    const res = await callAPI('scan', { type: 'manual', name: currentName, note, staff });
+    const res = await callAPI('scan', { type: 'manual', code: currentCode, name: currentName, note, staff });
     setLoading(confirmBtn, false);
     closeModal();
 
     if (res.success) {
       document.getElementById('stManual').innerHTML = statusSpan(true);
       manualSection.style.display = 'none';
-      // 顯示成功提示
       searchAlert.textContent = '核銷成功：' + res.name + '（' + res.group + '）';
       searchAlert.className = 'alert alert-success mt-16 show';
     } else {

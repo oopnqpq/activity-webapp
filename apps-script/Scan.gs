@@ -17,9 +17,9 @@ var Scan = {
     var inputName = String(params.name || '').trim();
     var inputCode = String(params.code || '').trim();
 
-    // manual 以姓名查找；checkin/checkout 以驗證碼查找（code 已唯一）
-    if (type === 'manual' && !inputName) {
-      return _respond({ success: false, error: '姓名不可為空' });
+    // manual 以驗證碼（優先）或姓名查找；checkin/checkout 以驗證碼查找
+    if (type === 'manual' && !inputCode && !inputName) {
+      return _respond({ success: false, error: '姓名或驗證碼不可為空' });
     }
     if (type !== 'manual' && !inputCode) {
       return _respond({ success: false, error: '驗證碼不可為空' });
@@ -37,11 +37,13 @@ var Scan = {
 
       for (var i = 1; i < data.length; i++) {
         if (type === 'manual') {
-          if (String(data[i][COL.NAME] || '').trim() === inputName) {
-            rowIndex = i; rowData = data[i]; break;
-          }
+          // 優先以驗證碼（唯一）比對，沒有 code 才退回姓名
+          var match = inputCode
+            ? String(data[i][COL.CODE] || '').trim() === inputCode
+            : String(data[i][COL.NAME] || '').trim() === inputName;
+          if (match) { rowIndex = i; rowData = data[i]; break; }
         } else {
-          // checkin / checkout：直接以驗證碼比對
+          // checkin / checkout：以驗證碼比對
           if (String(data[i][COL.CODE] || '').trim() === inputCode) {
             rowIndex = i; rowData = data[i]; break;
           }
@@ -139,15 +141,16 @@ var Scan = {
     var inputName = String(params.name || '').trim();
     if (!inputName) return _respond({ success: false, error: '姓名不可為空' });
 
-    var sheet = _getSheet();
-    var data  = sheet.getDataRange().getValues();
+    var sheet   = _getSheet();
+    var data    = sheet.getDataRange().getValues();
+    var results = [];
 
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][COL.NAME] || '').trim() === inputName) {
-        return _respond({
-          success:  true,
+        results.push({
           name:     data[i][COL.NAME],
           group:    data[i][COL.GROUP],
+          code:     data[i][COL.CODE],
           checkin:  !!data[i][COL.CHECKIN],
           mission:  !!data[i][COL.MISSION],
           checkout: !!data[i][COL.CHECKOUT],
@@ -156,7 +159,9 @@ var Scan = {
         });
       }
     }
-    return _respond({ success: false, error: '找不到此姓名' });
+
+    if (results.length === 0) return _respond({ success: false, error: '找不到此姓名' });
+    return _respond({ success: true, results: results });
   },
 
 };
