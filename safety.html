@@ -7,42 +7,48 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <nav class="navbar">
-    <a href="home.html" class="back">←</a>
-    <h1>安全提醒 / 路線</h1>
-  </nav>
+  <div class="app-shell">
 
-  <div class="content" style="padding-top:16px">
-    <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('safety', this)">⚠️ 安全提醒</button>
-      <button class="tab-btn"        onclick="switchTab('route',  this)">🗺 路線地圖</button>
+    <div class="app-banner">
+      <img src="assets/banner.jpg" alt="活動 Banner" onerror="this.style.display='none'">
     </div>
 
-    <!-- 安全提醒 -->
-    <div id="tab-safety" class="tab-panel active">
-      <!-- 活動方提供圖片後替換 src，可放多張 -->
-      <img
-        src="assets/safety-placeholder.png"
-        alt="安全提醒"
-        class="zoomable"
-        onclick="openZoom(this.src)"
-        onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>安全提醒圖片待上傳</div>'"
-      >
+    <div class="page-header">
+      <a href="home.html" class="back">←</a>
+      <h1>安全提醒 / 路線</h1>
     </div>
 
-    <!-- 路線地圖 -->
-    <div id="tab-route" class="tab-panel">
-      <img
-        src="assets/route-placeholder.png"
-        alt="活動路線"
-        class="zoomable"
-        onclick="openZoom(this.src)"
-        onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>路線地圖圖片待上傳</div>'"
-      >
+    <div class="app-body">
+      <div class="content" style="padding-top:16px">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('safety', this)">⚠️ 安全提醒</button>
+          <button class="tab-btn"        onclick="switchTab('route',  this)">🗺 路線地圖</button>
+        </div>
+
+        <div id="tab-safety" class="tab-panel active">
+          <img
+            src="assets/safety-placeholder.png"
+            alt="安全提醒"
+            class="zoomable"
+            onclick="openZoom(this.src)"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>安全提醒圖片待上傳</div>'"
+          >
+        </div>
+
+        <div id="tab-route" class="tab-panel">
+          <img
+            src="assets/route-placeholder.png"
+            alt="活動路線"
+            class="zoomable"
+            onclick="openZoom(this.src)"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>路線地圖圖片待上傳</div>'"
+          >
+        </div>
+      </div>
     </div>
+
   </div>
 
-  <!-- 圖片放大 overlay -->
   <div id="zoomOverlay" class="zoom-overlay" onclick="closeZoom()">
     <img id="zoomImg" src="" alt="">
   </div>
