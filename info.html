@@ -31,24 +31,34 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="home.html" class="back">←</a>
-    <h1>個人資訊</h1>
-  </nav>
+  <div class="app-shell">
 
-  <div class="content" style="padding-top:20px">
-    <div class="info-card">
-      <div class="info-name" id="infoName"></div>
-      <div class="info-group" id="infoGroup"></div>
+    <div class="app-banner">
+      <img src="assets/banner.jpg" alt="活動 Banner" onerror="this.style.display='none'">
+    </div>
 
-      <hr class="divider">
+    <div class="page-header">
+      <a href="home.html" class="back">←</a>
+      <h1>個人資訊</h1>
+    </div>
 
-      <div class="qr-section">
-        <p class="qr-label-top">報到 QR Code</p>
-        <div id="qrcode"></div>
-        <p class="qr-hint">報到時出示此 QR Code<br>讓工作人員掃描核銷</p>
+    <div class="app-body">
+      <div class="content" style="padding-top:20px">
+        <div class="info-card">
+          <div class="info-name" id="infoName"></div>
+          <div class="info-group" id="infoGroup"></div>
+
+          <hr class="divider">
+
+          <div class="qr-section">
+            <p class="qr-label-top">報到 QR Code</p>
+            <div id="qrcode"></div>
+            <p class="qr-hint">報到時出示此 QR Code<br>讓工作人員掃描核銷</p>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 
   <script src="js/config.js"></script>

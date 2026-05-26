@@ -7,131 +7,141 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <nav class="navbar">
-    <a href="home.html" class="back">←</a>
-    <h1>使命關卡任務</h1>
-  </nav>
+  <div class="app-shell">
 
-  <div class="content" style="padding-top:16px">
-
-    <!-- ① 填寫問卷 -->
-    <div class="task-card active" id="card1">
-      <div class="task-header" onclick="toggleCard('card1')">
-        <div class="task-num">①</div>
-        <div class="task-title">填寫問卷</div>
-        <div class="task-status" id="st1"></div>
-      </div>
-      <div class="task-body open" id="body1">
-        <p class="text-muted mb-16" style="font-size:.85rem">點擊前往填寫活動問卷，完成後回到此頁確認。</p>
-        <a id="formLink" href="#" target="_blank" rel="noopener" class="btn btn-outline mb-8"
-           style="display:inline-flex">前往填寫問卷 ↗</a>
-        <button class="btn btn-primary mt-8" id="m1DoneBtn" onclick="markM1Done()" disabled>我已完成問卷 ✓</button>
-        <p class="text-muted mt-4" id="m1Hint" style="font-size:.8rem">請先點擊上方連結開啟問卷</p>
-      </div>
+    <div class="app-banner">
+      <img src="assets/banner.jpg" alt="活動 Banner" onerror="this.style.display='none'">
     </div>
 
-    <!-- ② 上傳活動照片 -->
-    <div class="task-card active" id="card2">
-      <div class="task-header" onclick="toggleCard('card2')">
-        <div class="task-num">②</div>
-        <div class="task-title">上傳活動照片</div>
-        <div class="task-status" id="st2"></div>
-      </div>
-      <div class="task-body open" id="body2">
-        <img id="photoPreview" class="photo-preview" alt="照片預覽">
-        <div class="photo-drop" id="photoDrop"
-             onclick="document.getElementById('photoInput').click()">
-          <div style="font-size:2rem;margin-bottom:8px">📷</div>
-          點擊選取照片或拍照
+    <div class="page-header">
+      <a href="home.html" class="back">←</a>
+      <h1>使命關卡任務</h1>
+    </div>
+
+    <div class="app-body">
+      <div class="content" style="padding-top:16px">
+
+        <!-- ① 填寫問卷 -->
+        <div class="task-card active" id="card1">
+          <div class="task-header" onclick="toggleCard('card1')">
+            <div class="task-num">①</div>
+            <div class="task-title">填寫問卷</div>
+            <div class="task-status" id="st1"></div>
+          </div>
+          <div class="task-body open" id="body1">
+            <p class="text-muted mb-16" style="font-size:.85rem">點擊前往填寫活動問卷，完成後回到此頁確認。</p>
+            <a id="formLink" href="#" target="_blank" rel="noopener" class="btn btn-outline mb-8"
+               style="display:inline-flex">前往填寫問卷 ↗</a>
+            <button class="btn btn-primary mt-8" id="m1DoneBtn" onclick="markM1Done()" disabled>我已完成問卷 ✓</button>
+            <p class="text-muted mt-4" id="m1Hint" style="font-size:.8rem">請先點擊上方連結開啟問卷</p>
+          </div>
         </div>
-        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
-        <button class="btn btn-primary mt-8" id="photoConfirmBtn"
-                style="display:none" onclick="confirmPhoto()">使用此照片 ✓</button>
-      </div>
-    </div>
 
-    <!-- ③ 手寫簽名（鎖定直到 ② 完成） -->
-    <div class="task-card locked" id="card3">
-      <div class="task-header" onclick="toggleCard('card3')">
-        <div class="task-num">③</div>
-        <div class="task-title">手寫簽名</div>
-        <div class="task-status" id="st3"></div>
-      </div>
-      <div class="task-body" id="body3">
-        <p class="text-muted mb-8" style="font-size:.85rem">請用手指在下方空白區域簽名。</p>
-        <div class="sig-wrap">
-          <canvas id="sigCanvas"></canvas>
+        <!-- ② 上傳活動照片 -->
+        <div class="task-card active" id="card2">
+          <div class="task-header" onclick="toggleCard('card2')">
+            <div class="task-num">②</div>
+            <div class="task-title">上傳活動照片</div>
+            <div class="task-status" id="st2"></div>
+          </div>
+          <div class="task-body open" id="body2">
+            <img id="photoPreview" class="photo-preview" alt="照片預覽">
+            <div class="photo-drop" id="photoDrop"
+                 onclick="document.getElementById('photoInput').click()">
+              <div style="font-size:2rem;margin-bottom:8px">📷</div>
+              點擊選取照片或拍照
+            </div>
+            <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+            <button class="btn btn-primary mt-8" id="photoConfirmBtn"
+                    style="display:none" onclick="confirmPhoto()">使用此照片 ✓</button>
+          </div>
         </div>
-        <div class="sig-btn-row">
-          <button class="btn btn-outline" onclick="clearSig()">清除重簽</button>
-          <button class="btn btn-primary" onclick="confirmSig()">確認簽名 ✓</button>
+
+        <!-- ③ 手寫簽名（鎖定直到 ② 完成） -->
+        <div class="task-card locked" id="card3">
+          <div class="task-header" onclick="toggleCard('card3')">
+            <div class="task-num">③</div>
+            <div class="task-title">手寫簽名</div>
+            <div class="task-status" id="st3"></div>
+          </div>
+          <div class="task-body" id="body3">
+            <p class="text-muted mb-8" style="font-size:.85rem">請用手指在下方空白區域簽名。</p>
+            <div class="sig-wrap">
+              <canvas id="sigCanvas"></canvas>
+            </div>
+            <div class="sig-btn-row">
+              <button class="btn btn-outline" onclick="clearSig()">清除重簽</button>
+              <button class="btn btn-primary" onclick="confirmSig()">確認簽名 ✓</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ④ 生成 PDF 證書（鎖定直到 ③ 完成） -->
-    <div class="task-card locked" id="card4">
-      <div class="task-header" onclick="toggleCard('card4')">
-        <div class="task-num">④</div>
-        <div class="task-title">生成淨灘證書</div>
-        <div class="task-status" id="st4"></div>
-      </div>
-      <div class="task-body" id="body4">
-        <p class="text-muted mb-16" style="font-size:.85rem">
-          系統將為您生成含個人資訊、照片與簽名的淨灘成果證明書 PDF。
-        </p>
-        <img id="pdfThumb" class="pdf-thumb" alt="證書預覽">
-        <button class="btn btn-primary" id="genPdfBtn" onclick="generatePDF()">
-          <span class="btn-text">生成 PDF 證書</span>
-          <span class="spinner"></span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ⑤ 取得 PDF（鎖定直到 ④ 完成） -->
-    <div class="task-card locked" id="card5">
-      <div class="task-header" onclick="toggleCard('card5')">
-        <div class="task-num">⑤</div>
-        <div class="task-title">取得 PDF 證書</div>
-        <div class="task-status" id="st5"></div>
-      </div>
-      <div class="task-body" id="body5">
-        <button class="btn btn-primary mb-8" onclick="downloadPDF()">⬇ 下載至手機</button>
-        <div class="divider" style="margin:12px 0"></div>
-        <p class="text-muted mb-8" style="font-size:.85rem">或輸入 Email，稍後隨批次送出一併寄送：</p>
-        <div class="form-group" style="margin-bottom:8px">
-          <input type="email" id="emailInput" placeholder="your@email.com" inputmode="email">
+        <!-- ④ 生成 PDF 證書（鎖定直到 ③ 完成） -->
+        <div class="task-card locked" id="card4">
+          <div class="task-header" onclick="toggleCard('card4')">
+            <div class="task-num">④</div>
+            <div class="task-title">生成淨灘證書</div>
+            <div class="task-status" id="st4"></div>
+          </div>
+          <div class="task-body" id="body4">
+            <p class="text-muted mb-16" style="font-size:.85rem">
+              系統將為您生成含個人資訊、照片與簽名的淨灘成果證明書 PDF。
+            </p>
+            <img id="pdfThumb" class="pdf-thumb" alt="證書預覽">
+            <button class="btn btn-primary" id="genPdfBtn" onclick="generatePDF()">
+              <span class="btn-text">生成 PDF 證書</span>
+              <span class="spinner"></span>
+            </button>
+          </div>
         </div>
-        <button class="btn btn-outline" onclick="saveEmailForSend()">✉ 記下信箱（送出時寄送）</button>
-        <div id="emailSavedMsg" class="alert alert-success" style="display:none;margin-top:8px;padding:8px 12px">
-          信箱已記下，批次送出時將寄送 PDF ✓
+
+        <!-- ⑤ 取得 PDF（鎖定直到 ④ 完成） -->
+        <div class="task-card locked" id="card5">
+          <div class="task-header" onclick="toggleCard('card5')">
+            <div class="task-num">⑤</div>
+            <div class="task-title">取得 PDF 證書</div>
+            <div class="task-status" id="st5"></div>
+          </div>
+          <div class="task-body" id="body5">
+            <button class="btn btn-primary mb-8" onclick="downloadPDF()">⬇ 下載至手機</button>
+            <div class="divider" style="margin:12px 0"></div>
+            <p class="text-muted mb-8" style="font-size:.85rem">或輸入 Email，稍後隨批次送出一併寄送：</p>
+            <div class="form-group" style="margin-bottom:8px">
+              <input type="email" id="emailInput" placeholder="your@email.com" inputmode="email">
+            </div>
+            <button class="btn btn-outline" onclick="saveEmailForSend()">✉ 記下信箱（送出時寄送）</button>
+            <div id="emailSavedMsg" class="alert alert-success" style="display:none;margin-top:8px;padding:8px 12px">
+              信箱已記下，批次送出時將寄送 PDF ✓
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ⑥ 批次送出 -->
-    <div class="submit-section" style="margin-top:8px">
-      <div id="submitAlert" class="alert"></div>
-      <button class="btn btn-success mt-8" id="submitBtn" onclick="submitAll()" disabled>
-        <span class="btn-text">完成並送出 →</span>
-        <span class="spinner"></span>
-      </button>
-      <p class="text-muted text-center mt-8" id="submitHint" style="font-size:.8rem">
-        完成 ① 問卷 與 ⑤ 取得 PDF 後即可送出
-      </p>
-    </div>
+        <!-- ⑥ 批次送出 -->
+        <div class="submit-section" style="margin-top:8px">
+          <div id="submitAlert" class="alert"></div>
+          <button class="btn btn-success mt-8" id="submitBtn" onclick="submitAll()" disabled>
+            <span class="btn-text">完成並送出 →</span>
+            <span class="spinner"></span>
+          </button>
+          <p class="text-muted text-center mt-8" id="submitHint" style="font-size:.8rem">
+            完成 ① 問卷 與 ⑤ 取得 PDF 後即可送出
+          </p>
+        </div>
 
-    <!-- 簽退 QR Code（⑥ 成功後顯示） -->
-    <div class="checkout-section" id="checkoutSection">
-      <div class="checkout-card">
-        <div class="checkout-title">🎉 使命完成！</div>
-        <div class="checkout-sub">出示下方 QR Code 給工作人員掃描完成簽退</div>
-        <div id="checkoutQR" class="qr-wrap"></div>
-        <p class="text-muted" style="font-size:.8rem;margin-top:4px">簽退 QR Code</p>
-      </div>
-    </div>
+        <!-- 簽退 QR Code（⑥ 成功後顯示） -->
+        <div class="checkout-section" id="checkoutSection">
+          <div class="checkout-card">
+            <div class="checkout-title">🎉 使命完成！</div>
+            <div class="checkout-sub">出示下方 QR Code 給工作人員掃描完成簽退</div>
+            <div id="checkoutQR" class="qr-wrap"></div>
+            <p class="text-muted" style="font-size:.8rem;margin-top:4px">簽退 QR Code</p>
+          </div>
+        </div>
 
-  </div><!-- /content -->
+      </div><!-- /content -->
+    </div><!-- /app-body -->
+
+  </div><!-- /app-shell -->
 
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>

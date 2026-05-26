@@ -7,62 +7,69 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="page">
-    <div class="card">
-      <h1 class="text-center">活動報到系統</h1>
-      <p class="subtitle text-center">請輸入姓名與驗證碼以登入</p>
+  <div class="app-shell">
 
-      <form id="loginForm" novalidate>
-        <div class="form-group">
-          <label for="name">姓名</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="請輸入全名"
-            autocomplete="name"
-            inputmode="text"
-            required
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="code">驗證碼</label>
-          <input
-            type="text"
-            id="code"
-            name="code"
-            placeholder="請輸入 4 位數字驗證碼"
-            inputmode="numeric"
-            maxlength="4"
-            pattern="\d{4}"
-            autocomplete="off"
-            required
-          >
-        </div>
-
-        <div id="errorAlert" class="alert alert-error" role="alert"></div>
-
-        <button type="submit" id="submitBtn" class="btn btn-primary mt-16">
-          <span class="btn-text">登入</span>
-          <span class="spinner" aria-hidden="true"></span>
-        </button>
-      </form>
+    <div class="app-banner">
+      <img src="assets/banner.jpg" alt="活動 Banner" onerror="this.style.display='none'">
     </div>
+
+    <div class="app-body app-body-center">
+      <div class="card" style="width:100%;max-width:400px;">
+        <h1 class="text-center">活動報到系統</h1>
+        <p class="subtitle text-center">請輸入姓名與驗證碼以登入</p>
+
+        <form id="loginForm" novalidate>
+          <div class="form-group">
+            <label for="name">姓名</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="請輸入全名"
+              autocomplete="name"
+              inputmode="text"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="code">驗證碼</label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              placeholder="請輸入 4 位數字驗證碼"
+              inputmode="numeric"
+              maxlength="4"
+              pattern="\d{4}"
+              autocomplete="off"
+              required
+            >
+          </div>
+
+          <div id="errorAlert" class="alert alert-error" role="alert"></div>
+
+          <button type="submit" id="submitBtn" class="btn btn-primary mt-16">
+            <span class="btn-text">登入</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+
   </div>
 
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script>
-    // 已登入則直接跳過
     if (getSession()) {
       window.location.replace('home.html');
     }
 
-    const form      = document.getElementById('loginForm');
-    const nameInput = document.getElementById('name');
-    const codeInput = document.getElementById('code');
+    const form       = document.getElementById('loginForm');
+    const nameInput  = document.getElementById('name');
+    const codeInput  = document.getElementById('code');
     const errorAlert = document.getElementById('errorAlert');
     const submitBtn  = document.getElementById('submitBtn');
 
@@ -78,7 +85,6 @@
       submitBtn.disabled = on;
     }
 
-    // 驗證碼只允許數字輸入
     codeInput.addEventListener('input', () => {
       codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 4);
     });
