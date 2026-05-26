@@ -174,7 +174,7 @@
         const btn = document.createElement('button');
         btn.className = 'btn btn-outline mb-8';
         btn.style.cssText = 'width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center';
-        btn.innerHTML = '<span>' + p.name + '</span><span class="text-muted" style="font-size:.85rem">' + p.group + '</span>';
+        btn.innerHTML = '<span>' + p.name + '<span class="text-muted" style="font-size:.8rem;margin-left:6px">（' + p.code + '）</span></span><span class="text-muted" style="font-size:.85rem">' + p.group + '</span>';
         btn.addEventListener('click', function() { showPersonResult(p); });
         pickerList.appendChild(btn);
       });
