@@ -515,7 +515,7 @@ table.p-table {
 .page-header .back { font-size: 1.3rem; text-decoration: none; color: var(--text); line-height: 1; }
 .page-header h1    { font-size: 1rem; font-weight: 700; margin: 0; }
 
-/* ===== App Shell (index.html + home.html) ===== */
+/* ===== App Shell ===== */
 .app-shell {
   position: fixed;
   inset: 0;
@@ -550,7 +550,7 @@ table.p-table {
   padding: 24px 16px;
 }
 
-/* ===== Circular bottom nav ===== */
+/* ===== Circular bottom nav (kept for reference, not used in home.html now) ===== */
 .circle-nav {
   flex-shrink: 0;
   display: flex;
@@ -562,7 +562,6 @@ table.p-table {
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 -2px 16px rgba(0,0,0,.12);
 }
-
 .circle-btn {
   display: flex;
   flex-direction: column;
@@ -572,7 +571,6 @@ table.p-table {
   color: var(--text);
   -webkit-tap-highlight-color: transparent;
 }
-
 .circle-icon {
   width: 62px;
   height: 62px;
@@ -585,21 +583,82 @@ table.p-table {
   box-shadow: 0 4px 12px rgba(37,99,235,.30);
   transition: transform .12s, box-shadow .12s;
 }
-.circle-btn:active .circle-icon {
-  transform: scale(0.9);
-  box-shadow: 0 2px 6px rgba(37,99,235,.2);
-}
-
+.circle-btn:active .circle-icon { transform: scale(0.9); }
 .circle-label {
-  font-size: .72rem;
-  font-weight: 600;
-  color: var(--text);
-  text-align: center;
-  line-height: 1.3;
-  max-width: 72px;
+  font-size: .72rem; font-weight: 600;
+  color: var(--text); text-align: center; line-height: 1.3; max-width: 72px;
 }
-
 .circle-btn.mission-done .circle-icon {
   background: var(--success);
   box-shadow: 0 4px 12px rgba(22,163,74,.30);
 }
+
+/* ===== Banner user row overlay (home.html) ===== */
+.banner-overlay-wrap { position: relative; }
+
+.banner-user-row {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.80);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 50px;
+  padding: 6px 8px 6px 14px;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text);
+  max-width: calc(100% - 20px);
+}
+
+.btn-logout {
+  background: #D81B7A;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 5px 14px;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-logout:active { opacity: .85; }
+
+/* ===== Hub pill buttons (home.html) ===== */
+.hub-pills {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px 20px env(safe-area-inset-bottom, 24px);
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hub-pill {
+  display: block;
+  background: rgba(255,255,255,.90);
+  border-radius: 50px;
+  padding: 18px 28px;
+  margin-bottom: 14px;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: 0 4px 18px rgba(0,0,0,.13);
+  border: 2px solid transparent;
+  transition: transform .12s, box-shadow .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hub-pill:active {
+  transform: scale(.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
+}
+.hub-pill h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
+.hub-pill p  { font-size: .85rem; color: var(--muted); margin: 0; }
+.hub-pill.mission-done { border-color: var(--success); }
+.hub-pill.mission-done h3 { color: var(--success); }
