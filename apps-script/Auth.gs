@@ -42,12 +42,15 @@ var Auth = {
   },
 
   adminAuth: function(params) {
-    var adminPwd = _getProp('ADMIN_PASSWORD');
-    if (!adminPwd) {
-      return _respond({ success: false, error: '後台密碼未設定' });
+    var username = String(params.username || '').trim();
+    var password = String(params.password || '').trim();
+    if (!username || !password) {
+      return _respond({ success: false, error: '帳號與密碼不可為空' });
     }
-    if (params.password !== adminPwd) {
-      return _respond({ success: false, error: '密碼錯誤' });
+    // 每個帳號對應一個 Script Property，Key 格式為 ADMIN_{username}
+    var stored = _getProp('ADMIN_' + username);
+    if (!stored || stored !== password) {
+      return _respond({ success: false, error: '帳號或密碼錯誤' });
     }
     return _respond({ success: true });
   },

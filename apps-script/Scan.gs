@@ -84,8 +84,12 @@ var Scan = {
           return _respond({ success: false, error: '已手動核銷', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
         }
         sheet.getRange(sheetRow, COL.MANUAL + 1).setValue(true);
-        if (params.note) {
-          sheet.getRange(sheetRow, COL.NOTE + 1).setValue(String(params.note).slice(0, 100));
+        // 組合備註：[操作人員] 備註內容
+        var staff   = String(params.staff || '').trim();
+        var noteVal = String(params.note  || '').trim();
+        var combined = staff ? '[' + staff + '] ' + noteVal : noteVal;
+        if (combined) {
+          sheet.getRange(sheetRow, COL.NOTE + 1).setValue(combined.slice(0, 120));
         }
         return _respond({ success: true, name: rowData[COL.NAME], group: rowData[COL.GROUP], message: '手動核銷成功' });
       }

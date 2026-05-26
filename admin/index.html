@@ -10,17 +10,28 @@
   <div class="page">
     <div class="card">
       <h1 class="text-center">工作人員後台</h1>
-      <p class="subtitle text-center">請輸入後台密碼</p>
+      <p class="subtitle text-center">請輸入帳號與密碼</p>
 
       <form id="loginForm" novalidate>
         <div class="form-group">
-          <label for="password">後台密碼</label>
+          <label for="username">帳號</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="請輸入帳號"
+            autocomplete="username"
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="password">密碼</label>
           <input
             type="password"
             id="password"
             name="password"
             placeholder="請輸入密碼"
-            autocomplete="off"
+            autocomplete="current-password"
             required
           >
         </div>
@@ -44,6 +55,7 @@
     }
 
     const form        = document.getElementById('loginForm');
+    const userInput   = document.getElementById('username');
     const pwdInput    = document.getElementById('password');
     const errorAlert  = document.getElementById('errorAlert');
     const submitBtn   = document.getElementById('submitBtn');
@@ -55,18 +67,20 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError();
+      const username = userInput.value.trim();
       const password = pwdInput.value.trim();
+      if (!username) { showError('請輸入帳號'); userInput.focus(); return; }
       if (!password) { showError('請輸入密碼'); pwdInput.focus(); return; }
 
       setLoading(true);
-      const res = await callAPI('admin_auth', { password });
+      const res = await callAPI('admin_auth', { username, password });
       setLoading(false);
 
       if (res.success) {
-        setAdminSession();
+        setAdminSession(username);
         window.location.replace('dashboard.html');
       } else {
-        showError(res.error || '密碼錯誤');
+        showError(res.error || '帳號或密碼錯誤');
       }
     });
   </script>

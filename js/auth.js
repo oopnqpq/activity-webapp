@@ -67,8 +67,8 @@ function getAdminSession() {
   }
 }
 
-function setAdminSession() {
-  const s = { expiry: Date.now() + ADMIN_SESSION_HOURS * 3600 * 1000 };
+function setAdminSession(username) {
+  const s = { username: username || '', expiry: Date.now() + ADMIN_SESSION_HOURS * 3600 * 1000 };
   localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(s));
   return s;
 }

@@ -102,7 +102,7 @@
 <script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 <script>
-  requireAdminAuth();
+  const adminSession  = requireAdminAuth();
 
   const nameInput     = document.getElementById('nameInput');
   const searchBtn     = document.getElementById('searchBtn');
@@ -164,9 +164,10 @@
   });
 
   async function doManual() {
-    const note = document.getElementById('noteInput').value.trim();
+    const note  = document.getElementById('noteInput').value.trim();
+    const staff = adminSession ? adminSession.username : '';
     setLoading(confirmBtn, true);
-    const res = await callAPI('scan', { type: 'manual', name: currentName, note });
+    const res = await callAPI('scan', { type: 'manual', name: currentName, note, staff });
     setLoading(confirmBtn, false);
     closeModal();
 
