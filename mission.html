@@ -150,5 +150,11 @@
   <script src="lib/qrcode.min.js"></script>
   <script src="lib/jspdf.umd.min.js"></script>
   <script src="js/mission.js"></script>
+  <script>
+    // 行動瀏覽器 bfcache 防護：頁面從快取還原時強制重新載入，確保 session 重新驗證
+    window.addEventListener('pageshow', function(e) {
+      if (e.persisted) window.location.reload();
+    });
+  </script>
 </body>
 </html>
