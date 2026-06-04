@@ -24,9 +24,16 @@
     }
     .scan-box {
       width: 60%; aspect-ratio: 1;
-      border: 3px solid rgba(255,255,255,.8);
+      border: 3px solid rgba(37,99,235,.9);
       border-radius: 8px;
       box-shadow: 0 0 0 2000px rgba(0,0,0,.35);
+    }
+    .mode-badge {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: var(--primary); color: #fff;
+      padding: 14px 20px; border-radius: var(--radius);
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;
+      letter-spacing: .03em;
     }
     .result-card {
       border-radius: var(--radius);
@@ -64,6 +71,7 @@
 
     <div class="content" style="padding-top:16px">
       <div id="scanView">
+        <div class="mode-badge">📷 報到模式</div>
         <div class="scanner-wrap">
           <video id="video" autoplay playsinline muted></video>
           <div class="scan-guide"><div class="scan-box"></div></div>

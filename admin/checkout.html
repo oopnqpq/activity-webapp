@@ -19,8 +19,15 @@
     }
     .scan-box {
       width: 60%; aspect-ratio: 1;
-      border: 3px solid rgba(255,255,255,.8); border-radius: 8px;
+      border: 3px solid rgba(217,119,6,.9); border-radius: 8px;
       box-shadow: 0 0 0 2000px rgba(0,0,0,.35);
+    }
+    .mode-badge {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: #D97706; color: #fff;
+      padding: 14px 20px; border-radius: var(--radius);
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;
+      letter-spacing: .03em;
     }
     .result-card { border-radius: var(--radius); padding: 24px 20px; text-align: center; animation: fadeIn .2s ease; }
     .result-card.success { background: #DCFCE7; }
@@ -47,12 +54,13 @@
   </aside>
 
   <main class="admin-main">
-    <nav class="navbar">
+    <nav class="navbar" style="background:#D97706">
       <h1>簽退核銷</h1>
     </nav>
 
     <div class="content" style="padding-top:16px">
       <div id="scanView">
+        <div class="mode-badge">✅ 簽退核銷模式</div>
         <div class="scanner-wrap">
           <video id="video" autoplay playsinline muted></video>
           <div class="scan-guide"><div class="scan-box"></div></div>
