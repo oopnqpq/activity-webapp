@@ -9,6 +9,9 @@ apps-script/ConfirmationChecklist.gs
 HANDOVER_CHECKLIST.md
 developer_experience.txt
 requirement.txt
+CLAUDE.md
+development_stages_plan.html
+webapp_flowchart.txt
 
 # OS
 .DS_Store

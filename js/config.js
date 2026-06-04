@@ -15,5 +15,5 @@ const CONFIG = {
   STAFF_TOKEN: 'act2026token',
 
   // 使命① 問卷連結（Google Forms，活動方提供）
-  FORM_URL_M1: 'https://forms.gle/XXXXXXXX',
+  FORM_URL_M1: 'https://forms.gle/AgXddTSWRNbmGn8o6',
 };

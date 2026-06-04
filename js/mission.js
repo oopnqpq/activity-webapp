@@ -266,25 +266,27 @@ async function _renderCertificate() {
   cvs.width = W; cvs.height = H;
   const ctx = cvs.getContext('2d');
 
-  // Try loading designer's background first
-  const bgLoaded = await _tryLoadImage('assets/certificate-bg.png');
-  if (bgLoaded) {
-    ctx.drawImage(bgLoaded, 0, 0, W, H);
+  // Try PNG then JPG certificate background
+  const bg = await _tryLoadImage('assets/certificate-bg.png')
+          || await _tryLoadImage('assets/certificate-bg.jpg');
+  if (bg) {
+    ctx.drawImage(bg, 0, 0, W, H);
   } else {
     _drawFallbackLayout(ctx, W, H);
   }
 
-  // Photo area (top-center)
+  // ── 活動照片 → 右側矩形框 ──────────────────────────────────────
+  // 估算座標（肉眼版）：左上 x≈63%, y≈18.5%，寬≈21%, 高≈18%
+  // 如需微調，請修改下方四個百分比數值
   if (photoDataUrl) {
     const img = await _tryLoadImage(photoDataUrl);
     if (img) {
-      const px = Math.round(W * 0.10), py = Math.round(H * 0.22);
-      const pw = Math.round(W * 0.80), ph = Math.round(W * 0.48);
+      const px = Math.round(W * 0.630), py = Math.round(H * 0.185);
+      const pw = Math.round(W * 0.210), ph = Math.round(H * 0.180);
       ctx.save();
       ctx.beginPath();
       ctx.rect(px, py, pw, ph);
       ctx.clip();
-      // Cover-fit
       const scale = Math.max(pw / img.width, ph / img.height);
       const sw = img.width * scale, sh = img.height * scale;
       ctx.drawImage(img, px + (pw - sw) / 2, py + (ph - sh) / 2, sw, sh);
@@ -292,38 +294,17 @@ async function _renderCertificate() {
     }
   }
 
-  // Name
-  ctx.fillStyle = '#111827';
-  ctx.font = `bold ${Math.round(W * 0.065)}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText(session.name, W / 2, Math.round(H * 0.64));
-
-  // Date
-  const today = new Date().toLocaleDateString('zh-TW',
-    { year: 'numeric', month: 'long', day: 'numeric' });
-  ctx.fillStyle = '#4B5563';
-  ctx.font = `${Math.round(W * 0.033)}px sans-serif`;
-  ctx.fillText(today, W / 2, Math.round(H * 0.695));
-
-  // Signature
+  // ── 手寫簽名 → 「茲證明 _____ 君」空格處 ─────────────────────
+  // 估算座標（肉眼版）：左緣 x≈36.5%, 頂端 y≈22%，寬≈27%, 高≈3.2%
+  // 如需微調，請修改下方四個百分比數值
   if (sigB64) {
     const sigImg = await _tryLoadImage('data:image/png;base64,' + sigB64);
     if (sigImg) {
-      const sx = Math.round(W * 0.25), sy = Math.round(H * 0.74);
-      const sw = Math.round(W * 0.50), sh = Math.round(H * 0.06);
+      const sx = Math.round(W * 0.365), sy = Math.round(H * 0.220);
+      const sw = Math.round(W * 0.270), sh = Math.round(H * 0.032);
       ctx.drawImage(sigImg, sx, sy, sw, sh);
     }
   }
-  // Signature line
-  ctx.strokeStyle = '#9CA3AF';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(Math.round(W * 0.25), Math.round(H * 0.815));
-  ctx.lineTo(Math.round(W * 0.75), Math.round(H * 0.815));
-  ctx.stroke();
-  ctx.fillStyle = '#9CA3AF';
-  ctx.font = `${Math.round(W * 0.028)}px sans-serif`;
-  ctx.fillText('簽名 Signature', W / 2, Math.round(H * 0.845));
 
   return cvs.toDataURL('image/jpeg', 0.92);
 }

@@ -523,7 +523,7 @@ table.p-table {
   display: flex;
   flex-direction: column;
   background-color: var(--bg);
-  background-image: url('../assets/bg.jpg');
+  background-image: url('../assets/bg.png');
   background-size: cover;
   background-position: center;
 }
@@ -667,7 +667,7 @@ table.p-table {
 /* ===== Desktop RWD: center app in 480px column ===== */
 @media (min-width: 640px) {
   body {
-    background: url('../assets/bg.jpg') center/cover no-repeat fixed;
+    background: url('../assets/bg.png') center/cover no-repeat fixed;
     background-color: var(--bg);
   }
 
