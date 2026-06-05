@@ -275,14 +275,15 @@ async function _renderCertificate() {
     _drawFallbackLayout(ctx, W, H);
   }
 
-  // ── 活動照片 → 右側矩形框 ──────────────────────────────────────
-  // 估算座標（肉眼版）：左上 x≈63%, y≈18.5%，寬≈21%, 高≈18%
-  // 如需微調，請修改下方四個百分比數值
+  // A4 畫布 794px = 210mm → 1mm ≈ 3.781px
+  const MM = W / 210;
+
+  // ── 活動照片 → X:151.539 / Y:72.959 / 寬:45.954 / 高:61.489 (mm) ──
   if (photoDataUrl) {
     const img = await _tryLoadImage(photoDataUrl);
     if (img) {
-      const px = Math.round(W * 0.630), py = Math.round(H * 0.185);
-      const pw = Math.round(W * 0.210), ph = Math.round(H * 0.180);
+      const px = Math.round(151.539 * MM), py = Math.round(72.959 * MM);
+      const pw = Math.round( 45.954 * MM), ph = Math.round(61.489 * MM);
       ctx.save();
       ctx.beginPath();
       ctx.rect(px, py, pw, ph);
@@ -294,14 +295,12 @@ async function _renderCertificate() {
     }
   }
 
-  // ── 手寫簽名 → 「茲證明 _____ 君」空格處 ─────────────────────
-  // 估算座標（肉眼版）：左緣 x≈36.5%, 頂端 y≈22%，寬≈27%, 高≈3.2%
-  // 如需微調，請修改下方四個百分比數值
+  // ── 手寫簽名 → X:67.227 / Y:69.98 / 寬:46.164 / 高:10.003 (mm) ───
   if (sigB64) {
     const sigImg = await _tryLoadImage('data:image/png;base64,' + sigB64);
     if (sigImg) {
-      const sx = Math.round(W * 0.365), sy = Math.round(H * 0.220);
-      const sw = Math.round(W * 0.270), sh = Math.round(H * 0.032);
+      const sx = Math.round(67.227 * MM), sy = Math.round(69.98  * MM);
+      const sw = Math.round(46.164 * MM), sh = Math.round(10.003 * MM);
       ctx.drawImage(sigImg, sx, sy, sw, sh);
     }
   }
