@@ -6,15 +6,21 @@
   <title>後台儀表板</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
-    .stats-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+    .stats-top {
+      margin-bottom: 12px;
+    }
+    .stats-bottom {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px;
     }
     .stat-card {
       background: var(--card); border-radius: var(--radius);
       box-shadow: var(--shadow); padding: 14px; text-align: center;
     }
+    .stats-bottom .stat-card { padding: 12px 8px; }
     .stat-num   { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
+    .stats-bottom .stat-num { font-size: 1.5rem; }
     .stat-label { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .stats-bottom .stat-label { font-size: .7rem; }
     .progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 3px; background: var(--primary); transition: width .4s; }
     .section-head {
@@ -54,12 +60,15 @@
     </nav>
 
     <div class="content" style="padding-top:20px">
-      <!-- 統計 -->
-      <div class="stats-grid">
+      <!-- 統計 - 上排：總人數 -->
+      <div class="stats-top">
         <div class="stat-card">
           <div class="stat-num" id="numTotal">—</div>
           <div class="stat-label">總人數</div>
         </div>
+      </div>
+      <!-- 統計 - 下排：已報到 / 任務完成 / 已簽退 -->
+      <div class="stats-bottom">
         <div class="stat-card">
           <div class="stat-num" style="color:var(--primary)" id="numCheckin">—</div>
           <div class="stat-label">已報到</div>
@@ -163,9 +172,10 @@
       document.getElementById('numMission').textContent  = mission;
       document.getElementById('numCheckout').textContent = checkout;
       if (total > 0) {
-        document.getElementById('barCheckin').style.width  = (checkin  / total * 100) + '%';
-        document.getElementById('barMission').style.width  = (mission  / total * 100) + '%';
-        document.getElementById('barCheckout').style.width = (checkout / total * 100) + '%';
+        const pct = n => (n / total * 100) + '%';
+        document.getElementById('barCheckin').style.width  = pct(checkin);
+        document.getElementById('barMission').style.width  = pct(mission);
+        document.getElementById('barCheckout').style.width = pct(checkout);
       }
     }
 

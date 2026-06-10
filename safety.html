@@ -3,8 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安全提醒 / 路線</title>
+  <title>活動須知</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .tab-bar      { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+    .tab-btn      { flex-shrink: 0; min-width: 68px; font-size: .8rem; padding: 10px 6px; }
+    .link-panel {
+      margin-top: 8px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 20px;
+      text-align: center;
+    }
+    .link-panel .link-icon { font-size: 2.4rem; margin-bottom: 14px; }
+    .link-panel h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .link-panel p  { font-size: .85rem; color: var(--muted); margin-bottom: 24px; }
+  </style>
 </head>
 <body>
   <div class="app-shell">
@@ -15,23 +30,26 @@
 
     <div class="page-header">
       <a href="home.html" class="back">←</a>
-      <h1>安全提醒 / 路線</h1>
+      <h1>活動須知</h1>
     </div>
 
     <div class="app-body">
       <div class="content" style="padding-top:16px">
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('safety', this)">⚠️ 安全提醒</button>
-          <button class="tab-btn"        onclick="switchTab('route',  this)">🗺 路線地圖</button>
+          <button class="tab-btn active" onclick="switchTab('schedule', this)">🗓 活動流程</button>
+          <button class="tab-btn"        onclick="switchTab('route',    this)">🗺 路線地圖</button>
+          <button class="tab-btn"        onclick="switchTab('icc',      this)">🏷 ICC表</button>
+          <button class="tab-btn"        onclick="switchTab('land',     this)">🌿 陸域安全</button>
+          <button class="tab-btn"        onclick="switchTab('water',    this)">🌊 水域安全</button>
         </div>
 
-        <div id="tab-safety" class="tab-panel active">
+        <div id="tab-schedule" class="tab-panel active">
           <img
-            src="assets/safety.jpg"
-            alt="安全提醒"
+            src="assets/schedule.jpg"
+            alt="活動流程"
             class="zoomable"
             onclick="openZoom(this.src)"
-            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>安全提醒圖片待上傳</div>'"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>活動流程圖片待上傳</div>'"
           >
         </div>
 
@@ -44,6 +62,43 @@
             onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>路線地圖圖片待上傳</div>'"
           >
         </div>
+
+        <div id="tab-icc" class="tab-panel">
+          <img
+            src="assets/icc.png"
+            alt="ICC分類表"
+            class="zoomable"
+            onclick="openZoom(this.src)"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>ICC分類表圖片待上傳</div>'"
+          >
+        </div>
+
+        <div id="tab-land" class="tab-panel">
+          <div class="link-panel">
+            <div class="link-icon">🌿</div>
+            <h3>陸域安全宣導</h3>
+            <p>日月潭國家風景區陸域活動安全資訊</p>
+            <a href="https://www.sunmoonlake.gov.tw/explore/ArticlesCollapsedFull?a=58"
+               target="_blank" rel="noopener noreferrer"
+               class="btn btn-primary" style="text-decoration:none;">
+              前往陸域安全宣導 ↗
+            </a>
+          </div>
+        </div>
+
+        <div id="tab-water" class="tab-panel">
+          <div class="link-panel">
+            <div class="link-icon">🌊</div>
+            <h3>水域安全宣導</h3>
+            <p>日月潭水域活動安全資訊</p>
+            <a href="https://water.sunmoonlake.gov.tw/apply.aspx"
+               target="_blank" rel="noopener noreferrer"
+               class="btn btn-primary" style="text-decoration:none;">
+              前往水域安全宣導 ↗
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
 
