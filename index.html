@@ -32,10 +32,10 @@
             type="text"
             id="code"
             name="code"
-            placeholder="請輸入 4 位數字驗證碼"
+            placeholder="請輸入 5 位數字驗證碼"
             inputmode="numeric"
-            maxlength="4"
-            pattern="\d{4}"
+            maxlength="5"
+            pattern="\d{5}"
             autocomplete="off"
             required
           >
@@ -80,7 +80,7 @@
 
     // 驗證碼只允許數字輸入
     codeInput.addEventListener('input', () => {
-      codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 4);
+      codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 5);
     });
 
     form.addEventListener('submit', async (e) => {
@@ -91,7 +91,7 @@
       const code = codeInput.value.trim();
 
       if (!name) { showError('請輸入姓名'); nameInput.focus(); return; }
-      if (!/^\d{4}$/.test(code)) { showError('驗證碼須為 4 位數字'); codeInput.focus(); return; }
+      if (!/^\d{5}$/.test(code)) { showError('驗證碼須為 5 位數字'); codeInput.focus(); return; }
 
       setLoading(true);
       const res = await callAPI('auth', { name, code });
