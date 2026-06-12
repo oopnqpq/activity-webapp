@@ -17,6 +17,11 @@ async function callAPI(action, data = {}) {
   let lastError;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // 第一次 batch 呼叫前隨機等待 0–2s，分散 200 人同時送出的衝擊
+    if (isBatch && attempt === 1) {
+      await _sleep(Math.floor(Math.random() * 2000));
+    }
+
     try {
       const res = await fetch(CONFIG.API_URL, {
         method:  'POST',

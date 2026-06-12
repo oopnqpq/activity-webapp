@@ -27,6 +27,9 @@ let pdfGenerated    = false;
 
 let emailForSend    = '';
 
+// 預載的背景圖（confirmSig 後開始載入，generatePDF 時直接用）
+let certBgImage     = null;
+
 // ── Persisted state ──────────────────────────────────────────────
 let mission1_done = false;
 let mission5_done = false;
@@ -220,22 +223,37 @@ function confirmSig() {
     alert('請先完成簽名');
     return;
   }
-  // Export as PNG base64 (data URL → strip prefix)
   const dataUrl = sigPad.toDataURL('image/png');
   sigB64       = dataUrl.split(',')[1];
   sigConfirmed = true;
+
+  // 方案 A：確認簽名後立即預載背景圖，④ 生成時直接用快取
+  _preloadCertBg();
+
   updateUI();
   _openCard('card4');
 }
 
+// ── 背景圖預載（方案 A）──────────────────────────────────────────
+async function _preloadCertBg() {
+  if (certBgImage) return; // 已載入則跳過
+  certBgImage = await _tryLoadImage('assets/certificate-bg.png')
+             || await _tryLoadImage('assets/certificate-bg.jpg');
+}
+
 // ── ④ 生成 PDF ───────────────────────────────────────────────────
 async function generatePDF() {
-  const btn = document.getElementById('genPdfBtn');
+  const btn      = document.getElementById('genPdfBtn');
+  const statusEl = document.getElementById('genPdfStatus');
   btn.classList.add('loading');
   btn.disabled = true;
+  statusEl.style.display = 'block';
+  statusEl.textContent   = '';
 
   try {
-    const certImgDataUrl = await _renderCertificate();
+    const certImgDataUrl = await _renderCertificate(msg => {
+      statusEl.textContent = msg;
+    });
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -250,9 +268,11 @@ async function generatePDF() {
     thumb.classList.add('show');
 
     pdfGenerated = true;
+    statusEl.style.display = 'none';
     updateUI();
     _openCard('card5');
   } catch (err) {
+    statusEl.style.display = 'none';
     alert('PDF 生成失敗：' + err.message);
   } finally {
     btn.classList.remove('loading');
@@ -260,20 +280,29 @@ async function generatePDF() {
   }
 }
 
-async function _renderCertificate() {
+async function _renderCertificate(onProgress) {
   const W = 794, H = 1123; // ~A4 at 96 DPI
   const cvs = document.createElement('canvas');
   cvs.width = W; cvs.height = H;
   const ctx = cvs.getContext('2d');
 
-  // Try PNG then JPG certificate background
-  const bg = await _tryLoadImage('assets/certificate-bg.png')
+  // 步驟一：載入背景圖（優先用預載快取）
+  onProgress('正在載入背景圖… (1/3)');
+  await new Promise(r => setTimeout(r, 50)); // 讓 UI 更新
+
+  const bg = certBgImage
+          || await _tryLoadImage('assets/certificate-bg.png')
           || await _tryLoadImage('assets/certificate-bg.jpg');
-  if (bg) {
-    ctx.drawImage(bg, 0, 0, W, H);
-  } else {
-    _drawFallbackLayout(ctx, W, H);
+
+  // 方案 B：背景圖失敗直接報錯，不使用 fallback
+  if (!bg) {
+    throw new Error('背景圖載入失敗，請確認網路連線後重試');
   }
+  ctx.drawImage(bg, 0, 0, W, H);
+
+  // 步驟二：合成照片與簽名
+  onProgress('正在合成照片與簽名… (2/3)');
+  await new Promise(r => setTimeout(r, 50));
 
   // A4 畫布 794px = 210mm → 1mm ≈ 3.781px
   const MM = W / 210;
@@ -305,35 +334,11 @@ async function _renderCertificate() {
     }
   }
 
-  return cvs.toDataURL('image/jpeg', 0.92);
-}
+  // 步驟三：輸出 PDF
+  onProgress('正在輸出 PDF… (3/3)');
+  await new Promise(r => setTimeout(r, 50));
 
-function _drawFallbackLayout(ctx, W, H) {
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(0, 0, W, H);
-  // Outer border
-  ctx.strokeStyle = '#1E40AF';
-  ctx.lineWidth = 8;
-  ctx.strokeRect(18, 18, W - 36, H - 36);
-  ctx.lineWidth = 2;
-  ctx.strokeRect(26, 26, W - 52, H - 52);
-  // Title
-  ctx.fillStyle = '#1E40AF';
-  ctx.font = `bold ${Math.round(W * 0.07)}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText('淨灘成果證明書', W / 2, 105);
-  ctx.font = `${Math.round(W * 0.035)}px sans-serif`;
-  ctx.fillStyle = '#6B7280';
-  ctx.fillText('Beach Cleanup Achievement Certificate', W / 2, 150);
-  ctx.strokeStyle = '#BFDBFE';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(80, 168); ctx.lineTo(W - 80, 168);
-  ctx.stroke();
-  // "此人已參與" text below photo area placeholder
-  ctx.fillStyle = '#374151';
-  ctx.font = `${Math.round(W * 0.033)}px sans-serif`;
-  ctx.fillText('本人確認已參與本次活動並完成淨灘任務', W / 2, Math.round(H * 0.725));
+  return cvs.toDataURL('image/jpeg', 0.92);
 }
 
 function _tryLoadImage(src) {
