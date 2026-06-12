@@ -71,7 +71,7 @@ var Scan = {
         if (!rowData[COL.CHECKIN]) {
           return _respond({ success: false, error: '尚未報到，無法簽退', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
         }
-        if (!rowData[COL.MISSION]) {
+        if (!rowData[COL.MISSION] || rowData[COL.MISSION] === 'PROCESSING') {
           return _respond({ success: false, error: '任務尚未完成，無法簽退', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
         }
         if (rowData[COL.CHECKOUT]) {
@@ -113,7 +113,7 @@ var Scan = {
       success:  true,
       total:    rows.length,
       checkin:  rows.filter(function(r) { return r[COL.CHECKIN];  }).length,
-      mission:  rows.filter(function(r) { return r[COL.MISSION];  }).length,
+      mission:  rows.filter(function(r) { return r[COL.MISSION] && r[COL.MISSION] !== 'PROCESSING'; }).length,
       checkout: rows.filter(function(r) { return r[COL.CHECKOUT]; }).length,
     });
   },
@@ -129,7 +129,7 @@ var Scan = {
         name:     name,
         group:    String(data[i][COL.GROUP] || ''),
         checkin:  !!data[i][COL.CHECKIN],
-        mission:  !!data[i][COL.MISSION],
+        mission:  !!data[i][COL.MISSION] && data[i][COL.MISSION] !== 'PROCESSING',
         checkout: !!data[i][COL.CHECKOUT],
         manual:   !!data[i][COL.MANUAL],
       });
@@ -152,7 +152,7 @@ var Scan = {
           group:    data[i][COL.GROUP],
           code:     data[i][COL.CODE],
           checkin:  !!data[i][COL.CHECKIN],
-          mission:  !!data[i][COL.MISSION],
+          mission:  !!data[i][COL.MISSION] && data[i][COL.MISSION] !== 'PROCESSING',
           checkout: !!data[i][COL.CHECKOUT],
           manual:   !!data[i][COL.MANUAL],
           note:     data[i][COL.NOTE] || '',

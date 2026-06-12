@@ -129,6 +129,14 @@
 
   let allParticipants = [];
 
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function icon(ok) {
     return ok
       ? '<span class="icon-done">✔</span>'
@@ -139,8 +147,8 @@
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = list.map(p =>
       `<tr>
-        <td>${p.name}</td>
-        <td>${p.group}</td>
+        <td>${esc(p.name)}</td>
+        <td>${esc(p.group)}</td>
         <td>${icon(p.checkin)}</td>
         <td>${icon(p.mission)}</td>
         <td>${icon(p.checkout)}</td>
