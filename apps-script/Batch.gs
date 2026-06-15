@@ -72,7 +72,9 @@ var Batch = {
       }
       if (!folderId) {
         var rootFolder = DriveApp.getFolderById(_getProp('DRIVE_FOLDER_ID'));
-        folder   = rootFolder.createFolder(name);
+        // 查重，避免重試時建出多個同名資料夾
+        var existing = rootFolder.getFoldersByName(name);
+        folder   = existing.hasNext() ? existing.next() : rootFolder.createFolder(name);
         folderId = folder.getId();
       }
 
@@ -85,13 +87,15 @@ var Batch = {
         folder.createFile(photoBlob);
       }
 
+      // 解碼一次，Drive 上傳與 Gmail 附件共用同一個 blob
+      var pdfFileBlob = null;
       if (params.pdf) {
-        var pdfBlob = Utilities.newBlob(
+        pdfFileBlob = Utilities.newBlob(
           Utilities.base64Decode(params.pdf),
           'application/pdf',
           name + '_淨灘成果證明書.pdf'
         );
-        folder.createFile(pdfBlob);
+        folder.createFile(pdfFileBlob);
       }
 
     } catch (driveErr) {
@@ -111,24 +115,26 @@ var Batch = {
       sheet.getRange(sheetRow, COL.DRIVE_ID + 1).setValue(folderId);
       sheet.getRange(sheetRow, COL.MISSION + 1).setValue(_timestamp());
     } catch (err) {
+      // Lock② failed: clear PROCESSING so the user can retry instead of being stuck
+      try {
+        var recoverLock = LockService.getScriptLock();
+        recoverLock.waitLock(5000);
+        sheet.getRange(sheetRow, COL.MISSION + 1).setValue('');
+        recoverLock.releaseLock();
+      } catch (e) {}
       return _respond({ success: false, error: '資料寫入失敗：' + err.message });
     } finally {
       try { lock.releaseLock(); } catch (e) {}
     }
 
-    // Gmail（Lock 外，失敗不影響主流程）
-    if (params.email && params.pdf) {
+    // Gmail（Lock 外，失敗不影響主流程；reuse pdfFileBlob，不重複解碼）
+    if (params.email && pdfFileBlob) {
       try {
-        var mailPdf = Utilities.newBlob(
-          Utilities.base64Decode(params.pdf),
-          'application/pdf',
-          '淨灘成果證明書.pdf'
-        );
         GmailApp.sendEmail(
           params.email,
           '您的淨灘成果證明書',
           '感謝您參與本次淨灘活動！\n附件為您的個人淨灘成果證明書。',
-          { attachments: [mailPdf] }
+          { attachments: [pdfFileBlob] }
         );
       } catch (mailErr) {
         Logger.log('Gmail error: ' + mailErr.message);

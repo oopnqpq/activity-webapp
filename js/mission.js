@@ -6,8 +6,8 @@
  *   ⑥ 送出啟用條件：mission1_done && mission5_done
  */
 
-const MISSION_STATE_KEY = () => `mission_state_${session?.code || 'anon'}`;
-const MISSION_DONE_KEY  = () => `mission_done_${session?.code || 'anon'}`;
+const MISSION_STATE_KEY = () => session?.code ? `mission_state_${session.code}` : null;
+const MISSION_DONE_KEY  = () => session?.code ? `mission_done_${session.code}` : null;
 
 // ── In-memory state ──────────────────────────────────────────────
 let session         = null;
@@ -36,7 +36,9 @@ let mission5_done = false;
 
 function _loadState() {
   try {
-    const raw = localStorage.getItem(MISSION_STATE_KEY());
+    const key = MISSION_STATE_KEY();
+    if (!key) return;
+    const raw = localStorage.getItem(key);
     if (raw) {
       const s = JSON.parse(raw);
       mission1_done = !!s.m1;
@@ -46,7 +48,9 @@ function _loadState() {
 }
 
 function _saveState() {
-  localStorage.setItem(MISSION_STATE_KEY(), JSON.stringify({
+  const key = MISSION_STATE_KEY();
+  if (!key) return;
+  localStorage.setItem(key, JSON.stringify({
     m1: mission1_done,
     m5: mission5_done,
   }));
@@ -69,7 +73,8 @@ function _saveState() {
   });
 
   // If mission already fully submitted, show QR only
-  if (localStorage.getItem(MISSION_DONE_KEY()) === 'true') {
+  const doneKey = MISSION_DONE_KEY();
+  if (doneKey && localStorage.getItem(doneKey) === 'true') {
     _showCheckoutQR();
     document.querySelector('.content').querySelectorAll('.task-card, .submit-section').forEach(el => {
       el.style.display = 'none';
@@ -92,9 +97,15 @@ function _initSigPad() {
     alert('簽名元件載入失敗，請重新整理頁面');
     return;
   }
-  const canvas = document.getElementById('sigCanvas');
-  canvas.width  = canvas.offsetWidth || 320;
-  canvas.height = 160;
+  const canvas   = document.getElementById('sigCanvas');
+  const dpr      = window.devicePixelRatio || 1;
+  const displayW = canvas.offsetWidth || 320;
+  const displayH = 160;
+  // Scale internal resolution by DPR so signature stays sharp on retina displays (M-5)
+  canvas.width        = Math.round(displayW * dpr);
+  canvas.height       = Math.round(displayH * dpr);
+  canvas.style.width  = displayW + 'px';
+  canvas.style.height = displayH + 'px';
   sigPad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)' });
 }
 
@@ -163,25 +174,28 @@ function markM1Done() {
 
 // ── ② 照片 ───────────────────────────────────────────────────────
 function _handlePhotoSelect(file) {
-  const preview = document.getElementById('photoPreview');
-  const drop    = document.getElementById('photoDrop');
+  const preview    = document.getElementById('photoPreview');
+  const drop       = document.getElementById('photoDrop');
   const confirmBtn = document.getElementById('photoConfirmBtn');
 
   const reader = new FileReader();
   reader.onload = e => {
-    preview.src = e.target.result;
+    const dataUrl = e.target.result;
+    preview.src = dataUrl;
     preview.classList.add('show');
-    drop.style.display = 'none';
+    drop.style.display    = 'none';
     confirmBtn.style.display = 'block';
+    confirmBtn.disabled   = true; // wait for compression before allowing confirm
+
+    // Reuse the already-read dataURL — no second FileReader needed (M-6)
+    _compressImage(dataUrl).then(result => {
+      photoB64     = result.b64;
+      photoMime    = result.mime;
+      photoDataUrl = 'data:' + result.mime + ';base64,' + result.b64;
+      confirmBtn.disabled = false; // enable only after compression done (C-4)
+    });
   };
   reader.readAsDataURL(file);
-
-  // Compress in background
-  _compressImage(file).then(result => {
-    photoB64     = result.b64;
-    photoMime    = result.mime;
-    photoDataUrl = 'data:' + result.mime + ';base64,' + result.b64;
-  });
 }
 
 function confirmPhoto() {
@@ -191,25 +205,22 @@ function confirmPhoto() {
   _openCard('card3');
 }
 
-async function _compressImage(file) {
+async function _compressImage(dataUrl) {
   return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const MAX = 1200;
-        let w = img.width, h = img.height;
-        if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-        else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-        const cvs = document.createElement('canvas');
-        cvs.width = w; cvs.height = h;
-        cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-        const dataUrl = cvs.toDataURL('image/jpeg', 0.8);
-        resolve({ b64: dataUrl.split(',')[1], mime: 'image/jpeg' });
-      };
-      img.src = e.target.result;
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      const cvs = document.createElement('canvas');
+      cvs.width = w; cvs.height = h;
+      cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+      const result = cvs.toDataURL('image/jpeg', 0.8);
+      resolve({ b64: result.split(',')[1], mime: 'image/jpeg' });
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => resolve({ b64: null, mime: 'image/jpeg' });
+    img.src = dataUrl;
   });
 }
 
@@ -358,7 +369,8 @@ function downloadPDF() {
   a.href     = url;
   a.download = '淨灘成果證明書.pdf';
   a.click();
-  URL.revokeObjectURL(url);
+  // Delay revoke so mobile browsers finish processing the blob URL (M-3)
+  setTimeout(() => URL.revokeObjectURL(url), 100);
   mission5_done = true;
   _saveState();
   updateUI();
@@ -366,7 +378,8 @@ function downloadPDF() {
 
 function saveEmailForSend() {
   const email = document.getElementById('emailInput').value.trim();
-  if (!email || !email.includes('@')) {
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRe.test(email)) {
     alert('請輸入有效的 Email 地址');
     return;
   }
@@ -379,9 +392,9 @@ function saveEmailForSend() {
 
 // ── ⑥ 批次送出 ────────────────────────────────────────────────────
 async function submitAll() {
-  const btn   = document.getElementById('submitBtn');
-  const alert = document.getElementById('submitAlert');
-  alert.className = 'alert';
+  const btn     = document.getElementById('submitBtn');
+  const alertEl = document.getElementById('submitAlert');
+  alertEl.className = 'alert';
 
   btn.classList.add('loading');
   btn.disabled = true;
@@ -400,16 +413,17 @@ async function submitAll() {
   btn.classList.remove('loading');
 
   if (res.success || res.error === '任務已完成，請勿重複送出') {
-    localStorage.setItem(MISSION_DONE_KEY(), 'true');
+    const key = MISSION_DONE_KEY();
+    if (key) localStorage.setItem(key, 'true');
     _saveState();
-    alert.style.display = 'none';
+    alertEl.style.display = 'none';
     _showCheckoutQR();
     // Scroll to QR
     document.getElementById('checkoutSection').scrollIntoView({ behavior: 'smooth' });
   } else {
     btn.disabled = false;
-    alert.textContent = res.error || '送出失敗，請再試一次';
-    alert.className = 'alert alert-error show';
+    alertEl.textContent = res.error || '送出失敗，請再試一次';
+    alertEl.className = 'alert alert-error show';
   }
 }
 

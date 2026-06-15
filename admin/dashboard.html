@@ -195,7 +195,8 @@
 
   function logout() { clearAdminSession(); window.location.replace('index.html'); }
 
-  loadAll();
+  // 不在頁面載入時自動呼叫 API（200人同時在線時每次開頁面都會消耗並發名額）
+  // 工作人員按「重新整理」按鈕才觸發
 </script>
 </body>
 </html>

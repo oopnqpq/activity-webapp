@@ -114,9 +114,14 @@
   const resultView = document.getElementById('resultView');
   const scanAlert  = document.getElementById('scanAlert');
 
-  let scanning = false;
-  let animFrame = null;
-  let stream    = null;
+  let scanning    = false;
+  let animFrame   = null;
+  let stream      = null;
+  let processing  = false; // guard against double handleQR on frame boundary
+
+  window.addEventListener('pagehide', () => {
+    stream?.getTracks().forEach(t => t.stop());
+  });
 
   async function startCamera() {
     try {
@@ -143,7 +148,8 @@
       const code = jsQR(imageData.data, imageData.width, imageData.height, {
         inversionAttempts: 'dontInvert',
       });
-      if (code) {
+      if (code && !processing) {
+        processing = true;
         scanning = false;
         cancelAnimationFrame(animFrame);
         handleQR(code.data);
@@ -186,6 +192,7 @@
   }
 
   function resumeScan() {
+    processing = false;
     resultView.style.display = 'none';
     scanView.style.display   = 'block';
     scanning = true;
