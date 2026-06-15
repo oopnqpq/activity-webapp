@@ -21,17 +21,27 @@
     <div class="app-body">
       <div class="content" style="padding-top:16px">
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('notice1', this)">📋 通知內容</button>
-          <!-- 未來新增頁籤時在此加入 -->
+          <button class="tab-btn active" onclick="switchTab('notice1', this)">📋 注意事項1</button>
+          <button class="tab-btn"        onclick="switchTab('notice2', this)">📋 注意事項2</button>
         </div>
 
         <div id="tab-notice1" class="tab-panel active">
           <img
-            src="assets/prenotice.jpg"
-            alt="行前通知"
+            src="assets/prenotice-1.jpg"
+            alt="注意事項1"
             class="zoomable"
             onclick="openZoom(this.src)"
-            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>行前通知圖片待上傳</div>'"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>注意事項1 圖片待上傳</div>'"
+          >
+        </div>
+
+        <div id="tab-notice2" class="tab-panel">
+          <img
+            src="assets/prenotice-2.jpg"
+            alt="注意事項2"
+            class="zoomable"
+            onclick="openZoom(this.src)"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>注意事項2 圖片待上傳</div>'"
           >
         </div>
       </div>
