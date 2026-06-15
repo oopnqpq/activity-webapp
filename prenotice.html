@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>活動須知</title>
+  <title>行前通知</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,33 +15,23 @@
 
     <div class="page-header">
       <a href="home.html" class="back">←</a>
-      <h1>活動須知</h1>
+      <h1>行前通知</h1>
     </div>
 
     <div class="app-body">
       <div class="content" style="padding-top:16px">
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('schedule', this)">🗓 活動流程</button>
-          <button class="tab-btn"        onclick="switchTab('route',    this)">🗺 路線地圖</button>
+          <button class="tab-btn active" onclick="switchTab('notice1', this)">📋 通知內容</button>
+          <!-- 未來新增頁籤時在此加入 -->
         </div>
 
-        <div id="tab-schedule" class="tab-panel active">
+        <div id="tab-notice1" class="tab-panel active">
           <img
-            src="assets/schedule.jpg"
-            alt="活動流程"
+            src="assets/prenotice.jpg"
+            alt="行前通知"
             class="zoomable"
             onclick="openZoom(this.src)"
-            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>活動流程圖片待上傳</div>'"
-          >
-        </div>
-
-        <div id="tab-route" class="tab-panel">
-          <img
-            src="assets/route.jpg"
-            alt="活動路線"
-            class="zoomable"
-            onclick="openZoom(this.src)"
-            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>路線地圖圖片待上傳</div>'"
+            onerror="this.parentElement.innerHTML='<div class=\'card text-center\' style=\'padding:40px;color:var(--muted)\'>行前通知圖片待上傳</div>'"
           >
         </div>
       </div>
