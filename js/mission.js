@@ -82,10 +82,12 @@ function _saveState() {
     return;
   }
 
-  // Photo input change handler
-  document.getElementById('photoInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) _handlePhotoSelect(file);
+  // Photo input change handlers（拍照 + 從相簿選取共用同一處理）
+  ['photoCaptureInput', 'photoPickInput'].forEach(id => {
+    document.getElementById(id).addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) _handlePhotoSelect(file);
+    });
   });
 
   updateUI();

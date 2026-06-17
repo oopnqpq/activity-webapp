@@ -46,12 +46,15 @@
           </div>
           <div class="task-body open" id="body2">
             <img id="photoPreview" class="photo-preview" alt="照片預覽">
-            <div class="photo-drop" id="photoDrop"
-                 onclick="document.getElementById('photoInput').click()">
+            <div class="photo-drop" id="photoDrop">
               <div style="font-size:2rem;margin-bottom:8px">📷</div>
-              點擊選取照片或拍照
+              <div style="display:flex;gap:8px;width:100%">
+                <button class="btn btn-primary" onclick="document.getElementById('photoCaptureInput').click()" style="flex:1" type="button">拍照</button>
+                <button class="btn btn-outline" onclick="document.getElementById('photoPickInput').click()" style="flex:1" type="button">從相簿選取</button>
+              </div>
             </div>
-            <input type="file" id="photoInput" accept="image/*" style="display:none">
+            <input type="file" id="photoCaptureInput" accept="image/*" capture="environment" style="display:none">
+            <input type="file" id="photoPickInput" accept="image/*" style="display:none">
             <button class="btn btn-primary mt-8" id="photoConfirmBtn"
                     style="display:none" onclick="confirmPhoto()">使用此照片 ✓</button>
           </div>
