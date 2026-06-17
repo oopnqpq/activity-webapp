@@ -102,6 +102,9 @@ function _initSigPad() {
   const canvas = document.getElementById('sigCanvas');
   canvas.width  = canvas.offsetWidth || 320;
   canvas.height = 160;
+  // 阻止 iOS Safari 在 canvas 上觸發文字選取 / callout 選單
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('selectstart', e => e.preventDefault());
   sigPad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)' });
 }
 
