@@ -21,13 +21,13 @@ let photoConfirmed  = false;
 let sigB64          = null;   // signature PNG base64
 let sigConfirmed    = false;
 
-let pdfB64          = null;   // PDF base64 (for API)
-let pdfBlob         = null;   // PDF blob (for local download)
-let pdfGenerated    = false;
+let certB64         = null;   // cert JPEG base64 (for API)
+let certDataUrl     = null;   // cert JPEG data URL (for display)
+let certGenerated   = false;
 
 let emailForSend    = '';
 
-// 預載的背景圖（confirmSig 後開始載入，generatePDF 時直接用）
+// 預載的背景圖（confirmSig 後開始載入，generateCert 時直接用）
 let certBgImage     = null;
 
 // ── Persisted state ──────────────────────────────────────────────
@@ -97,15 +97,9 @@ function _initSigPad() {
     alert('簽名元件載入失敗，請重新整理頁面');
     return;
   }
-  const canvas   = document.getElementById('sigCanvas');
-  const dpr      = window.devicePixelRatio || 1;
-  const displayW = canvas.offsetWidth || 320;
-  const displayH = 160;
-  // Scale internal resolution by DPR so signature stays sharp on retina displays (M-5)
-  canvas.width        = Math.round(displayW * dpr);
-  canvas.height       = Math.round(displayH * dpr);
-  canvas.style.width  = displayW + 'px';
-  canvas.style.height = displayH + 'px';
+  const canvas = document.getElementById('sigCanvas');
+  canvas.width  = canvas.offsetWidth || 320;
+  canvas.height = 160;
   sigPad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)' });
 }
 
@@ -123,12 +117,12 @@ function updateUI() {
   _setCard('card3', 'body3', sigConfirmed, photoConfirmed);
   document.getElementById('st3').textContent = sigConfirmed ? '✓' : '';
 
-  // ④ PDF — unlocked after ③ done
-  _setCard('card4', 'body4', pdfGenerated, sigConfirmed);
-  document.getElementById('st4').textContent = pdfGenerated ? '✓' : '';
+  // ④ 證書 — unlocked after ③ done
+  _setCard('card4', 'body4', certGenerated, sigConfirmed);
+  document.getElementById('st4').textContent = certGenerated ? '✓' : '';
 
-  // ⑤ 取得 PDF — unlocked after ④ done
-  _setCard('card5', 'body5', mission5_done, pdfGenerated);
+  // ⑤ 儲存證書 — unlocked after ④ done
+  _setCard('card5', 'body5', mission5_done, certGenerated);
   document.getElementById('st5').textContent = mission5_done ? '✓' : '';
 
   // ⑥ Submit button
@@ -252,39 +246,38 @@ async function _preloadCertBg() {
              || await _tryLoadImage('assets/certificate-bg.jpg');
 }
 
-// ── ④ 生成 PDF ───────────────────────────────────────────────────
-async function generatePDF() {
-  const btn      = document.getElementById('genPdfBtn');
-  const statusEl = document.getElementById('genPdfStatus');
+// ── ④ 生成證書（JPEG，不使用 jsPDF）─────────────────────────────
+async function generateCert() {
+  const btn      = document.getElementById('genCertBtn');
+  const statusEl = document.getElementById('genCertStatus');
   btn.classList.add('loading');
   btn.disabled = true;
   statusEl.style.display = 'block';
   statusEl.textContent   = '';
 
   try {
-    const certImgDataUrl = await _renderCertificate(msg => {
+    certDataUrl = await _renderCertificate(msg => {
       statusEl.textContent = msg;
     });
+    certB64 = certDataUrl.split(',')[1];
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.addImage(certImgDataUrl, 'JPEG', 0, 0, 210, 297);
-
-    pdfBlob = doc.output('blob');
-    pdfB64  = doc.output('datauristring').split(',')[1];
-
-    // Show thumbnail
-    const thumb = document.getElementById('pdfThumb');
-    thumb.src = certImgDataUrl;
+    // Show thumbnail in card4
+    const thumb = document.getElementById('certThumb');
+    thumb.src = certDataUrl;
     thumb.classList.add('show');
 
-    pdfGenerated = true;
+    // Pre-populate full image in card5
+    document.getElementById('certFullImg').src = certDataUrl;
+    document.getElementById('certFullImg').style.display = 'block';
+    document.getElementById('certSaveHint').style.display = 'block';
+
+    certGenerated = true;
     statusEl.style.display = 'none';
     updateUI();
     _openCard('card5');
   } catch (err) {
     statusEl.style.display = 'none';
-    alert('PDF 生成失敗：' + err.message);
+    alert('證書生成失敗：' + err.message);
   } finally {
     btn.classList.remove('loading');
     btn.disabled = false;
@@ -345,8 +338,8 @@ async function _renderCertificate(onProgress) {
     }
   }
 
-  // 步驟三：輸出 PDF
-  onProgress('正在輸出 PDF… (3/3)');
+  // 步驟三：輸出證書圖片
+  onProgress('正在輸出證書… (3/3)');
   await new Promise(r => setTimeout(r, 50));
 
   return cvs.toDataURL('image/jpeg', 0.92);
@@ -361,16 +354,8 @@ function _tryLoadImage(src) {
   });
 }
 
-// ── ⑤ 取得 PDF ───────────────────────────────────────────────────
-function downloadPDF() {
-  if (!pdfBlob) return;
-  const url = URL.createObjectURL(pdfBlob);
-  const a   = document.createElement('a');
-  a.href     = url;
-  a.download = '淨灘成果證明書.pdf';
-  a.click();
-  // Delay revoke so mobile browsers finish processing the blob URL (M-3)
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+// ── ⑤ 儲存證書（JPEG 直接顯示在頁面，不離開頁面）────────────────
+function saveCert() {
   mission5_done = true;
   _saveState();
   updateUI();
@@ -396,6 +381,13 @@ async function submitAll() {
   const alertEl = document.getElementById('submitAlert');
   alertEl.className = 'alert';
 
+  // 安全檢查：防止 iOS 頁面重載後送出空 payload（導致空資料夾）
+  if (!photoB64 || !certB64) {
+    alertEl.textContent = '照片或證書資料遺失，請重新完成步驟 ②～④ 後再送出';
+    alertEl.className = 'alert alert-error show';
+    return;
+  }
+
   btn.classList.add('loading');
   btn.disabled = true;
 
@@ -404,7 +396,7 @@ async function submitAll() {
     code:      session.code,
     photo:     photoB64,
     photoMime: photoMime,
-    pdf:       pdfB64,
+    cert:      certB64,
   };
   if (emailForSend) payload.email = emailForSend;
 

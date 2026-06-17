@@ -2,8 +2,8 @@
  * Batch.gs — AB 端點
  *
  * action = 'batch'
- * 接收：{ action, token, name, code, photo, photoMime, pdf, email? }
- * 處理：建 Drive 資料夾 → 上傳照片 → 上傳 PDF → 更新 Sheets → 可選 Gmail
+ * 接收：{ action, token, name, code, photo, photoMime, cert, email? }
+ * 處理：建 Drive 資料夾 → 上傳照片 → 上傳證書圖片 → 更新 Sheets → 可選 Gmail
  *
  * Lock 策略：只在 Sheets 讀寫時持鎖（短暫），Drive 操作在 Lock 外執行
  * Lock①：讀取 + 防重複 + 寫「PROCESSING」佔位（~2s）
@@ -88,14 +88,14 @@ var Batch = {
       }
 
       // 解碼一次，Drive 上傳與 Gmail 附件共用同一個 blob
-      var pdfFileBlob = null;
-      if (params.pdf) {
-        pdfFileBlob = Utilities.newBlob(
-          Utilities.base64Decode(params.pdf),
-          'application/pdf',
-          name + '_淨灘成果證明書.pdf'
+      var certFileBlob = null;
+      if (params.cert) {
+        certFileBlob = Utilities.newBlob(
+          Utilities.base64Decode(params.cert),
+          'image/jpeg',
+          name + '_淨灘成果證明書.jpg'
         );
-        folder.createFile(pdfFileBlob);
+        folder.createFile(certFileBlob);
       }
 
     } catch (driveErr) {
@@ -127,14 +127,14 @@ var Batch = {
       try { lock.releaseLock(); } catch (e) {}
     }
 
-    // Gmail（Lock 外，失敗不影響主流程；reuse pdfFileBlob，不重複解碼）
-    if (params.email && pdfFileBlob) {
+    // Gmail（Lock 外，失敗不影響主流程；reuse certFileBlob，不重複解碼）
+    if (params.email && certFileBlob) {
       try {
         GmailApp.sendEmail(
           params.email,
           '您的淨灘成果證明書',
           '感謝您參與本次淨灘活動！\n附件為您的個人淨灘成果證明書。',
-          { attachments: [pdfFileBlob] }
+          { attachments: [certFileBlob] }
         );
       } catch (mailErr) {
         Logger.log('Gmail error: ' + mailErr.message);

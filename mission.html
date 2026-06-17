@@ -29,7 +29,7 @@
             <div class="task-status" id="st1"></div>
           </div>
           <div class="task-body open" id="body1">
-            <p class="text-muted mb-16" style="font-size:.85rem">點擊前往填寫活動問卷，完成後回到此頁確認。</p>
+            <p class="text-muted mb-16" style="font-size:.85rem">點擊前往填寫活動問卷（將開啟新分頁），完成後請關閉問卷分頁回到此頁，點擊下方按鈕確認。</p>
             <a id="formLink" href="#" target="_blank" rel="noopener" class="btn btn-outline mb-8"
                style="display:inline-flex">前往填寫問卷 ↗</a>
             <button class="btn btn-primary mt-8" id="m1DoneBtn" onclick="markM1Done()" disabled>我已完成問卷 ✓</button>
@@ -76,7 +76,7 @@
           </div>
         </div>
 
-        <!-- ④ 生成 PDF 證書（鎖定直到 ③ 完成） -->
+        <!-- ④ 生成淨灘證書（鎖定直到 ③ 完成） -->
         <div class="task-card locked" id="card4">
           <div class="task-header" onclick="toggleCard('card4')">
             <div class="task-num">④</div>
@@ -85,26 +85,30 @@
           </div>
           <div class="task-body" id="body4">
             <p class="text-muted mb-16" style="font-size:.85rem">
-              系統將為您生成含個人資訊、照片與簽名的淨灘成果證明書 PDF。
+              系統將為您生成含個人資訊、照片與簽名的淨灘成果證明書。
             </p>
-            <img id="pdfThumb" class="pdf-thumb" alt="證書預覽">
-            <button class="btn btn-primary" id="genPdfBtn" onclick="generatePDF()">
-              <span class="btn-text">生成 PDF 證書</span>
+            <img id="certThumb" class="pdf-thumb" alt="證書預覽">
+            <button class="btn btn-primary" id="genCertBtn" onclick="generateCert()">
+              <span class="btn-text">生成淨灘證書</span>
               <span class="spinner"></span>
             </button>
-            <p id="genPdfStatus" class="text-muted mt-8" style="display:none;font-size:.85rem;text-align:center"></p>
+            <p id="genCertStatus" class="text-muted mt-8" style="display:none;font-size:.85rem;text-align:center"></p>
           </div>
         </div>
 
-        <!-- ⑤ 取得 PDF（鎖定直到 ④ 完成） -->
+        <!-- ⑤ 儲存證書（鎖定直到 ④ 完成） -->
         <div class="task-card locked" id="card5">
           <div class="task-header" onclick="toggleCard('card5')">
             <div class="task-num">⑤</div>
-            <div class="task-title">取得 PDF 證書</div>
+            <div class="task-title">儲存淨灘證書</div>
             <div class="task-status" id="st5"></div>
           </div>
           <div class="task-body" id="body5">
-            <button class="btn btn-primary mb-8" onclick="downloadPDF()">⬇ 下載至手機</button>
+            <img id="certFullImg" alt="淨灘證書" style="display:none;width:100%;border-radius:8px;margin-bottom:8px">
+            <p id="certSaveHint" class="text-muted" style="display:none;font-size:.8rem;margin-bottom:12px;text-align:center">
+              長壓上方圖片可儲存至手機相簿
+            </p>
+            <button class="btn btn-primary mb-8" onclick="saveCert()">我已儲存證書 ✓</button>
             <div class="divider" style="margin:12px 0"></div>
             <p class="text-muted mb-8" style="font-size:.85rem">或輸入 Email，稍後隨批次送出一併寄送：</p>
             <div class="form-group" style="margin-bottom:8px">
@@ -112,7 +116,7 @@
             </div>
             <button class="btn btn-outline" onclick="saveEmailForSend()">✉ 記下信箱（送出時寄送）</button>
             <div id="emailSavedMsg" class="alert alert-success" style="display:none;margin-top:8px;padding:8px 12px">
-              信箱已記下，批次送出時將寄送 PDF ✓
+              信箱已記下，批次送出時將寄送證書 ✓
             </div>
           </div>
         </div>
@@ -125,7 +129,7 @@
             <span class="spinner"></span>
           </button>
           <p class="text-muted text-center mt-8" id="submitHint" style="font-size:.8rem">
-            完成 ① 問卷 與 ⑤ 取得 PDF 後即可送出
+            完成 ① 問卷 與 ⑤ 儲存證書 後即可送出
           </p>
         </div>
 
@@ -149,7 +153,6 @@
   <script src="js/api.js"></script>
   <script src="lib/signature_pad.min.js"></script>
   <script src="lib/qrcode.min.js"></script>
-  <script src="lib/jspdf.umd.min.js"></script>
   <script src="js/mission.js"></script>
   <script>
     // 行動瀏覽器 bfcache 防護：頁面從快取還原時強制重新載入，確保 session 重新驗證
