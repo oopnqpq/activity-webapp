@@ -9,7 +9,7 @@
 
 const CONFIG = {
   // Apps Script Web App URL
-  API_URL: 'https://script.google.com/macros/s/AKfycbzgTCDwI9yo6RgK41fhq8UoyWR7nxGQsgzFWm6U80tRFc__bUMC-u6sVCLgusuwFYln/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbxDRb-rrvLK_Amgu7EXwca--topSLa9iGP8U8zVCXW6EoWBXLmIg7yhan9Wwyx2cB4/exec',
 
   // 與 Apps Script Script Properties 的 STAFF_TOKEN 一致
   STAFF_TOKEN: 'act2026token',
