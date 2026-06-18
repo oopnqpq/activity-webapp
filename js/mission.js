@@ -103,8 +103,10 @@ function _initSigPad() {
   canvas.width  = canvas.offsetWidth || 320;
   canvas.height = 160;
   // 阻止 iOS Safari 在 canvas 上觸發文字選取 / callout 選單
+  // SignaturePad 4.x 使用 pointer events，阻止 touch events 不影響簽名功能
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   canvas.addEventListener('selectstart', e => e.preventDefault());
+  canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
   sigPad = new SignaturePad(canvas, { backgroundColor: 'rgb(255,255,255)' });
 }
 
