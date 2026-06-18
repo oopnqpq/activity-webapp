@@ -68,9 +68,6 @@ var Scan = {
       }
 
       if (type === 'checkout') {
-        if (!rowData[COL.CHECKIN]) {
-          return _respond({ success: false, error: '尚未報到，無法簽退', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
-        }
         if (!rowData[COL.MISSION] || rowData[COL.MISSION] === 'PROCESSING') {
           return _respond({ success: false, error: '任務尚未完成，無法簽退', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
         }
@@ -86,6 +83,10 @@ var Scan = {
           return _respond({ success: false, error: '已手動核銷', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
         }
         sheet.getRange(sheetRow, COL.MANUAL + 1).setValue(true);
+        // 若尚未簽退，手動核銷同時寫入簽退時間戳（統一看 G 欄判斷可否領禮物）
+        if (!rowData[COL.CHECKOUT]) {
+          sheet.getRange(sheetRow, COL.CHECKOUT + 1).setValue(_timestamp());
+        }
         // 組合備註：[操作人員] 備註內容
         var staff   = String(params.staff || '').trim();
         var noteVal = String(params.note  || '').trim();
