@@ -68,6 +68,9 @@ var Scan = {
       }
 
       if (type === 'checkout') {
+        if (!rowData[COL.CHECKIN]) {
+          return _respond({ success: false, error: '尚未報到，無法簽退', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
+        }
         if (!rowData[COL.MISSION] || rowData[COL.MISSION] === 'PROCESSING') {
           return _respond({ success: false, error: '任務尚未完成，無法簽退', name: rowData[COL.NAME], group: rowData[COL.GROUP] });
         }
